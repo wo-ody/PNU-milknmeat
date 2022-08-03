@@ -472,9 +472,10 @@
 
 			var item = new Array();
 			var temp = new Array();
+			var price = new Array();
 			
 
-			for(var i =0; i<all_itemId.length; i++){
+			for(var i = 0; i<all_itemId.length; i++){
 				
 				// //소유자와 생산자 다른지 확인. (내가 생산자면 낙찰내역에 안뜨게)
 				temp[i] = await Item_sol.methods.getItemById(all_itemId[i]).call();
@@ -490,6 +491,10 @@
 
 				//item[i] = await Item_sol.methods.getItemById(all_itemId[i]).call();
 				console.log(item[i]);
+
+				//내가 낙찰한 item이 있을때만 가격 저장
+				if(item[i]!=undefined)
+					price[i] =await Auction_sol.methods. getWinnigBid(item[i].itemId).call();
 			}
 			//console.log(item);
 
@@ -558,7 +563,7 @@
 
 				//낙찰된 가격 , sm으로부터 호출
 				let row_2_data_6 = document.createElement('td');
-				row_2_data_6.innerHTML = "낙찰된 가격";
+				row_2_data_6.innerHTML = price[i];
 
 				row_2.appendChild(row_2_data_1);
 				row_2.appendChild(row_2_data_2);
@@ -603,32 +608,25 @@
 
 			delete_table(flag);
 
-				
-			var userAccount = await web3.eth.getAccounts();
-
-			console.log(userAccount);
+			
+			//var rws =await Auction_sol.methods.getRwSupplyData();
 			
 			
-         	//console.log(producer);
-        	//var tracing = rwData.productTracingFromYouByItemId(i_id, prouducer).call();
-			//console.log(tracing);
-
+			var route = new Array();
 			for(var i =0; i<all_itemId.length; i++){
+				var producer = await Item_sol.methods.getProducerById(all_itemId[i]).call();
+				//rws.productTracingFromYouByItemId(all_itemId[i],producer).call();
+				//console.log(rws);
+				console.log(producer);
 				console.log(all_itemId[i]);
-
-				//수정본_0803_류지환
-				var path = await rwSupply_sol.methods.getPathMaxByItemId(all_itemId[i]).call();
-				//rwSupply.getPathMaxByItemId(_itemId) -> Item_ID별 Supply 컨트랙트에서 string[] pathMax를 가져옴
-
-				console.log(path);
 			
+				//route[i] = await Auction_sol.methods.productTracingFromYouByItemId(all_itemId[i],producer).call();
 				//console.log("경로 : ",route[i]);
 				// console.log("dddd")
 
 				//event.preventDefault();
 
 			}
-		
 			
 			// var item = new Array();
 			// var temp = new Array();
@@ -741,10 +739,10 @@
 					let row_4 = document.createElement('tr');
 					
 					let row_4_data_1 = document.createElement('td');
-					row_4_data_1.innerHTML = "시작";
+					row_4_data_1.innerHTML = "시작"+j;
 					
 					let row_4_data_2 = document.createElement('td');
-					row_4_data_2.innerHTML = "도착";
+					row_4_data_2.innerHTML = "도착"+j;
 					
 					row_4.appendChild(row_4_data_1);
 					row_4.appendChild(row_4_data_2);
@@ -752,10 +750,10 @@
 					
 				}
 
-				//var path = await rwSupply_sol.methods.getPathMaxByItemId(all_itemId[i]).call();
+				//var route = await rwSupply_sol.methods.productTracingFromYouByItemId(all_itemId[i]).call();
 				//var route = await rwSupply_sol.methods.productTracingByItemId(all_itemId[i],temp[i].producer).call();
 
-				//row_2_data_3.innerHTML = path;
+				//row_2_data_3.innerHTML = route;
 				
 
 				row_3_data_3.appendChild(inner_table);
@@ -770,7 +768,7 @@
 				all_itemId = await Auction_sol.methods.getOwnedBy(userAccount[0]).call();
 
 				row_3.innerHTML += 
-				'<td><button id='+idx+' class="btn btn-primary" onclick="create_QR(' + "this.id" + ' )">QR코드 생성</button></td></tr>';
+				'<td><button id='+idx+' class="btn btn-primary" onclick="create_QR(' + "this.id" + ' )">QR코드</button></td></tr>';
 				tbody.appendChild(row_3);
 				
 			}

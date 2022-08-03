@@ -248,7 +248,7 @@
 	 async function finish(){
 		event.preventDefault();
 		var userAccount = await web3.eth.getAccounts();
-		var a = await Auction_sol.methods.finalizeAuction((a_id)).send({from:userAccount[0]});
+		var a = await Auction_sol.methods.finalizeAuction((a_id)).send({from:userAccount[0],gas:1000000});
 		console.log("경매 끝",a);
 		
 	 }

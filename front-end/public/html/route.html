@@ -76,16 +76,12 @@
 		//경매목록에서 넘겨받은 id 저장
          var query = document.location.search;
          var param = new URLSearchParams(query);
-         
-         
          i_id = param.get('a'); //item_id
 		 a_id = param.get('b'); //auction_id
-         
-        
-         
-
          document.getElementById("data").innerHTML +=i_id;
          document.getElementById("data").innerHTML +=a_id;
+						
+		
 	
      })
 
