@@ -1,0 +1,263 @@
+<!-- /*
+* Template Name: Property
+* Template Author: Untree.co
+* Template URI: https://untree.co/
+* License: https://creativecommons.org/licenses/by/3.0/
+*/ -->
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="author" content="Untree.co">
+	<link rel="shortcut icon" href="../favicon.png">
+
+	<meta name="description" content="" />
+	<meta name="keywords" content="bootstrap, bootstrap5" />
+	
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+
+	<link rel="stylesheet" href="../fonts/icomoon/style.css">
+	<link rel="stylesheet" href="../fonts/flaticon/font/flaticon.css">
+
+	<link rel="stylesheet" href="../css/tiny-slider.css">
+	<link rel="stylesheet" href="../css/aos.css">
+	<link rel="stylesheet" href="../css/style.css">
+
+	<title>수산물 경매 사이트</title>
+</head>
+<body>
+
+	<div class="site-mobile-menu site-navbar-target">
+		<div class="site-mobile-menu-header">
+			<div class="site-mobile-menu-close">
+				<span class="icofont-close js-menu-toggle"></span>
+			</div>
+		</div>
+		<div class="site-mobile-menu-body"></div>
+	</div>
+
+	<nav class="site-nav">
+		<div class="container">
+			<div class="menu-bg-wrap">
+				<div class="site-navigation">
+					<a href="../index.html" class="logo m-0 float-start">수산물 경매 사이트</a>
+
+					<ul class="js-clone-nav d-none d-lg-inline-block text-start site-menu float-end">
+						<li><a href="../index.html">홈</a></li>
+						<li class="has-children active">
+							<a href="properties.html">경매 물품</a>
+							<ul class="dropdown">
+								<li><a href="#">Buy Property</a></li>
+								<li><a href="#">Sell Property</a></li>
+								<li class="has-children">
+									<a href="#">Dropdown</a>
+									<ul class="dropdown">
+										<li><a href="#">Sub Menu One</a></li>
+										<li><a href="#">Sub Menu Two</a></li>
+										<li><a href="#">Sub Menu Three</a></li>
+									</ul>
+								</li>
+							</ul>
+						</li>
+						<li><a href="my_page.html">My Page</a></li>
+						<!-- <li><a href="services.html">Services</a></li>
+						<li><a href="about.html">About</a></li>
+						<li><a href="contact.html">Contact Us</a></li> -->
+					</ul>
+				</div>
+			</div>
+		</div>
+	</nav>
+
+	<div class="hero page-inner overlay" style="background-image: url('../images/ocean_wave.jpg');">
+
+		<div class="container">
+			<div class="row justify-content-center align-items-center">
+				<div class="col-lg-9 text-center mt-5">
+					<h1 class="heading" data-aos="fade-up">입찰에 참여하세요.</h1>
+
+					<!-- <nav aria-label="breadcrumb" data-aos="fade-up" data-aos-delay="200">
+						<ol class="breadcrumb text-center justify-content-center">
+							<li class="breadcrumb-item "><a href="index.html">Home</a></li>
+							<li class="breadcrumb-item "><a href="properties.html">Properties</a></li>
+							<li class="breadcrumb-item active text-white-50" aria-current="page">5232 California AVE. 21BC</li>
+						</ol>
+					</nav> -->
+
+
+				</div>
+			</div>
+
+
+		</div>
+	</div>
+
+
+	<div class="section">
+		<div class="container">
+			<div class="row justify-content-between">
+				<div class="col-lg-5">
+					<div class="img-property-slide-wrap">
+						<div class="img-property-slide">
+							<img src="../images/img_1.jpg" alt="Image" class="img-fluid">
+							<img src="../images/img_2.jpg" alt="Image" class="img-fluid">
+							<img src="../images/img_3.jpg" alt="Image" class="img-fluid">
+						</div>
+					</div>
+				</div>
+				<div class="col-lg-6">
+					<div id = "item_info">
+						<!--해당 물품에 대한 정보 여기 넣기-->
+					</div>
+					<div class="d-block agent-box p-5">
+						<div class="text">
+							<h1> 입찰하시겠습니까 ? </h1>
+							<h3 id = "bid_start_price" class="mb-0" style="color: red;" >입찰 초기 가격 : </h3>
+							<form action="#" name = "bidform" style="margin-top: 20px;">
+								<div class="row">
+									<div class="col-6 mb-3">  
+										<input type="text" name="txt1" class="form-control" placeholder="입찰가격">
+									</div>
+									<div class="col-6 mb-3">
+										<input type="text" name="txt2" class="form-control" placeholder="배송지 ( 배송받고자 하는 주소)">
+									</div>
+									
+									<div class="col-12 mb-3">
+										<input type="button" value="입찰 참여" class="btn btn-primary" onclick="bid_start()">
+									</div>
+
+									<div id="btn"></div>
+									
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+     <!-- Preloader -->
+     <div id="overlayer"></div>
+     <div class="loader">
+         <div class="spinner-border" role="status">
+             <span class="visually-hidden">Loading...</span>
+         </div>
+     </div>
+
+
+	 <div id="data" class="section pt-0" style="margin-top: 100px;">
+		
+	</div>
+     <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+
+	 <script src="../auction_abi.js"></script>
+	 <script src="../Item_abi.js"></script>
+     <script src="../Supply_abi.js"></script>
+	 <script src="../rwSupply_abi.js"></script>
+
+  
+     
+	 <script src="../js/index.js"></script>
+     <script src="../js/bootstrap.bundle.min.js"></script>
+     <script src="../js/tiny-slider.js"></script>
+     <script src="../js/aos.js"></script>
+     <script src="../js/navbar.js"></script>
+     <script src="../js/counter.js"></script>
+     <script src="../js/custom.js"></script>
+     <script>
+        var info_item;
+		var info_auction;
+		var a_id;
+		var i_id;
+     window.addEventListener("load", async function() {
+        
+		//경매목록에서 넘겨받은 id 저장
+         var query = document.location.search;
+         var param = new URLSearchParams(query);
+         i_id = param.get('item_id'); //item_id
+		 a_id = param.get('auction_id'); //auction_id
+
+		 console.log("아이템 id ",i_id);
+		 console.log("옥션 id ",a_id);
+         
+		 info_item = await Item_sol.methods.viewItemById(i_id).call(); //해당 물품의 item 정보 모두
+		 info_auction = await Auction_sol.methods.getAuctionById(a_id).call();//해당 물품의 auction 정보 모두
+
+		 const info = document.getElementById("item_info");
+		 info.innerHTML = 
+		 		'<h2 class="heading text-primary">' + info_item.name + '</h2>' + 
+				'<p class="meta"> 원산지 : ' + info_item.origin + '</p>' +
+				'<p class="text-black-50">' + '무게 : '+ info_item.weight + ' 갯수 : ' + info_item.stock +'</p>';
+
+		document.getElementById("bid_start_price").innerHTML += (info_auction.startPrice + '원');
+
+		var userAccount = await web3.eth.getAccounts();
+		if(info_auction.owner==userAccount[0]){
+			console.log("owner")
+				document.getElementById('btn').innerHTML+=
+						'<td><button class="btn btn-primary" onclick="finish()" >경매끝내기</button></td>';
+		}
+		//  //옥션인덱스(id)로 아이템정보 가져오기 
+		//  var userAccount = await web3.eth.getAccounts();
+        //  var all = await Auction_sol.methods.getAuctionById(id).call();
+        //  alert(id);
+		//  var data=''
+		//  for(var i=0; i<3; i++)
+		//  	data = data + ' '+ all[i]
+        //  document.getElementById('data').innerHTML = data;
+        //  console.log(all);
+     })
+
+	 async function bid_start(){
+		 console.log("입찰 참여함");
+
+		 if ( bidform.txt1.value == "") {
+			bidform.txt1.focus();
+			alert("입찰 하고자 하는 가격을 입력해주세요. ");
+			event.preventDefault();
+			return;
+		}
+		if ( bidform.txt2.value == "") {
+			alert("배송받고자 하는 배송지를 입력해주세요.");
+			bidform.txt2.focus();
+			event.preventDefault();
+			return;
+		}
+		//입찰가격은 입찰 초기 가격보다 높아야함.
+		if(parseInt(bidform.txt1.value) < parseInt(info_auction.startPrice)){
+			bidform.txt1.focus();
+			alert("초기 입찰 가격보다 낮습니다. 다시 입력해주세요.");
+			event.preventDefault();
+			return;
+		}
+
+		//입찰 시작 sm호출
+		var userAccount = await web3.eth.getAccounts();
+		var bidVal = parseInt(bidform.txt1.value);
+		var a = await Auction_sol.methods.bidOnAuction(parseInt(a_id),bidform.txt2.value).send({from:userAccount[0],value:bidVal});
+		console.log('경매 참여',a);
+
+
+	 }
+
+	 async function finish(){
+		event.preventDefault();
+		var userAccount = await web3.eth.getAccounts();
+		var a = await Auction_sol.methods.finalizeAuction((a_id)).send({from:userAccount[0],gas:1000000});
+		console.log("경매 끝",a);
+		
+	 }
+     </script>
+ 
+   </body>
+ 
+ 
+ 
+ 
+   </html>
+ 
