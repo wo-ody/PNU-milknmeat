@@ -1,0 +1,15 @@
+{
+  "name": "monday",
+  "version": "1.0.0",
+  "description": "수산물 경매 사이트",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.1",
+    "web3": "^1.7.4"
+  }
+}
