@@ -612,13 +612,12 @@
 			//var rws =await Auction_sol.methods.getRwSupplyData();
 			
 			
-			var route = new Array();
+			
+			var path = new Array();
 			for(var i =0; i<all_itemId.length; i++){
-				var producer = await Item_sol.methods.getProducerById(all_itemId[i]).call();
-				//rws.productTracingFromYouByItemId(all_itemId[i],producer).call();
-				//console.log(rws);
-				console.log(producer);
-				console.log(all_itemId[i]);
+				
+				path[i] = await rwSupply_sol.methods.getPathMaxByItemId(all_itemId[i]).call();
+				console.log(path[i]);
 			
 				//route[i] = await Auction_sol.methods.productTracingFromYouByItemId(all_itemId[i],producer).call();
 				//console.log("경로 : ",route[i]);

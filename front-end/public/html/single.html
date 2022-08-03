@@ -176,6 +176,7 @@
 		var i_id;
      window.addEventListener("load", async function() {
         
+		
 		//경매목록에서 넘겨받은 id 저장
          var query = document.location.search;
          var param = new URLSearchParams(query);
@@ -248,7 +249,7 @@
 	 async function finish(){
 		event.preventDefault();
 		var userAccount = await web3.eth.getAccounts();
-		var a = await Auction_sol.methods.finalizeAuction((a_id)).send({from:userAccount[0],gas:1000000});
+		var a = await Auction_sol.methods.finalizeAuction((a_id)).send({from:userAccount[0]});
 		console.log("경매 끝",a);
 		
 	 }
