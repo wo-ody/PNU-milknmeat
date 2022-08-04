@@ -347,9 +347,11 @@
 			
 
 			var item = new Array();
+			var cids = new Array();
 			for(var i =0; i<all_itemId.length; i++){
 				item[i] = await Item_sol.methods.getItemById(all_itemId[i]).call();
-				
+				cids = await Item_sol.methods.getImageCIDsById(all_itemId[i]).call();
+				console.log(cids);
 			}
 			console.log(item);
 

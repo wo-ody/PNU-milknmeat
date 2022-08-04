@@ -187,34 +187,32 @@
 
         /* 첨부파일 추가 */
         async function addFile(obj){
+            const node = await Ipfs.create()
+
+           
             var maxFileCnt = 5;   // 첨부파일 최대 개수
             var attFileCnt = document.querySelectorAll('.filebox').length;    // 기존 추가된 첨부파일 개수
             var remainFileCnt = maxFileCnt - attFileCnt;    // 추가로 첨부가능한 개수
-            var curFileCnt = obj.files.length;  // 현재 선택된 첨부파일 개수
-            //const node = await Ipfs.create();
+            var curFileCnt = obj.files.length;  // 현재 선택된 첨부파일 개수       
 
             // 첨부파일 개수 확인
             if (curFileCnt > remainFileCnt) {
                 alert("첨부파일은 최대 " + maxFileCnt + "개 까지 첨부 가능합니다.");
             } else {
-                for (const file of obj.files) {
+                
+                for await (const file of obj.files) {
                     // 첨부파일 검증
                     if (validation(file)) {
                         // 파일 배열에 담기
-                        var reader = new FileReader();
-                        reader.onload = function () {
-                            filesArr.push(file);
-                            
-                            //ipfsObj = node.add(file);
-                            console.log(file);
-                            
-                            //console.info(ipfsObj);
-                            
-                            
-                            
-                        };
-                        reader.readAsDataURL(file);
 
+                        var results = await node.add(file);
+
+                        //var cid = getCIDFromFile(results);
+                        
+                        console.log(results.path);
+                        filesArr.push(results.path);
+
+                    
                         // 목록 추가
                         let htmlData = '';
                         htmlData += '<div id="file' + fileNo + '" class="filebox">';
@@ -297,6 +295,8 @@
             var kg = parseInt(myform.txt2.value);
             var count= parseInt(myform.txt3.value);
             var from= String(myform.txt4.value);
+
+            console.log(filesArr);
            
             // 상품등록 성공
             //경매 물품에 상품 추가하기
@@ -314,8 +314,8 @@
             
             //수정_0725_류지환
             alert('상품을 등록합니다.');
-            let create_item = await Item_sol.methods.createItem(fish,kg,count,from).send({from:userAccount[0]});
-            let item_id = await Item_sol.methods.createItem(fish,kg,count,from).call()-1;
+            let create_item = await Item_sol.methods.createItem(fish,kg,count,from, filesArr).send({from:userAccount[0]});
+            let item_id = await Item_sol.methods.createItem(fish,kg,count,from,filesArr).call()-1;
             alert('보유한 상품 목록에 추가합니다.');
             let push_Owned_By = await Auction_sol.methods.pushOwnedBy(item_id).send({from:userAccount[0]});
             alert('블록체인에 상품의 정보를 저장합니다.');

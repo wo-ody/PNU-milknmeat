@@ -13,7 +13,7 @@ contract ItemContract{
         address payable producer;   
         string origin;  
         uint256 itemId;    
-        string imgCID;
+        string[] imgCIDs;
         address payable owner;
         bool active;
     } 
@@ -26,7 +26,7 @@ contract ItemContract{
     
 
 
-    function createItem(string memory _itemTitle, uint256 _weight, uint256 _stock,  string memory _origin) public returns(uint256){
+    function createItem(string memory _itemTitle, uint256 _weight, uint256 _stock, string memory _origin, string[] memory _imgCID) public returns(uint256){
         
         uint256 _itemId = items.length;
 
@@ -40,6 +40,7 @@ contract ItemContract{
         newItem.origin = _origin;
         newItem.itemId = _itemId;
         newItem.owner = payable(msg.sender);
+        newItem.imgCIDs = _imgCID;
 
         items.push(newItem);
  
@@ -58,6 +59,10 @@ contract ItemContract{
     function getProducerCheck(address _user) public view returns(bool){
         bool rtn = producerCheck[_user];
         return rtn;
+    }
+
+    function getImageCIDsById(uint256 _itemId) public view returns(string[] memory){
+        return items[_itemId].imgCIDs;
     }
 
     function getOriginById(uint256 _itemId) public view returns(string memory){
@@ -83,7 +88,8 @@ contract ItemContract{
         uint256 stock,
         address payable producer,
         string memory origin,
-        uint256 itemId
+        uint256 itemId,
+        string[] memory imgCIDs
     ){
         Item memory item = items[_itemId];
         return(
@@ -92,7 +98,8 @@ contract ItemContract{
             item.stock,
             item.producer,
             item.origin,
-            item.itemId
+            item.itemId,
+            item.imgCIDs
             );
     }
 

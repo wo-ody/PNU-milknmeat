@@ -103,9 +103,11 @@
 				<div class="col-lg-5">
 					<div class="img-property-slide-wrap">
 						<div class="img-property-slide">
-							<img src="../images/img_1.jpg" alt="Image" class="img-fluid">
-							<img src="../images/img_2.jpg" alt="Image" class="img-fluid">
-							<img src="../images/img_3.jpg" alt="Image" class="img-fluid">
+							<div id = "img01" class = "img-fluid"></div>
+							<div id = "img02" class = "img-fluid"></div>
+							<div id = "img03" class = "img-fluid"></div>
+							<div id = "img04" class = "img-fluid"></div>
+							<div id = "img05" class = "img-fluid"></div>
 						</div>
 					</div>
 				</div>
@@ -178,8 +180,12 @@
         
 		
 		//경매목록에서 넘겨받은 id 저장
+		var imgArr = new Array();
          var query = document.location.search;
          var param = new URLSearchParams(query);
+		var imgHtml = '';
+		var cnt = 1;
+
          i_id = param.get('item_id'); //item_id
 		 a_id = param.get('auction_id'); //auction_id
 
@@ -188,6 +194,26 @@
          
 		 info_item = await Item_sol.methods.viewItemById(i_id).call(); //해당 물품의 item 정보 모두
 		 info_auction = await Auction_sol.methods.getAuctionById(a_id).call();//해당 물품의 auction 정보 모두
+		 img_item = await Item_sol.methods.getImageCIDsById(i_id).call();
+
+		 console.log(img_item);
+
+		 for(const imgCID of img_item){
+			var imgId = "img0" + cnt.toString();
+			//console.log(imgId);
+			var imgN = document.getElementById(imgId);
+			imgHtml = '<img src="https://ipfs.io/ipfs/'+ imgCID +'" alt="Image"/>';
+			//console.log(imgHtml)
+			imgN.innerHTML += imgHtml;
+			cnt++;
+		 }
+
+		 for(var delIdx = cnt;delIdx<=5;delIdx++){
+			var imgId = "img0" + delIdx.toString();
+			const imgN = document.getElementById(imgId);
+			imgN.style.display = "none";
+		 }
+
 
 		 const info = document.getElementById("item_info");
 		 info.innerHTML = 
@@ -212,6 +238,8 @@
 		//  	data = data + ' '+ all[i]
         //  document.getElementById('data').innerHTML = data;
         //  console.log(all);
+		
+
      })
 
 	 async function bid_start(){

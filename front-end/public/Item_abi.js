@@ -109,11 +109,6 @@ var ItemABI= [
         "type": "uint256"
       },
       {
-        "internalType": "string",
-        "name": "imgCID",
-        "type": "string"
-      },
-      {
         "internalType": "address payable",
         "name": "owner",
         "type": "address"
@@ -169,6 +164,11 @@ var ItemABI= [
         "internalType": "string",
         "name": "_origin",
         "type": "string"
+      },
+      {
+        "internalType": "string[]",
+        "name": "_imgCID",
+        "type": "string[]"
       }
     ],
     "name": "createItem",
@@ -239,9 +239,9 @@ var ItemABI= [
             "type": "uint256"
           },
           {
-            "internalType": "string",
-            "name": "imgCID",
-            "type": "string"
+            "internalType": "string[]",
+            "name": "imgCIDs",
+            "type": "string[]"
           },
           {
             "internalType": "address payable",
@@ -277,6 +277,26 @@ var ItemABI= [
         "internalType": "bool",
         "name": "",
         "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function",
+    "constant": true
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_itemId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getImageCIDsById",
+    "outputs": [
+      {
+        "internalType": "string[]",
+        "name": "",
+        "type": "string[]"
       }
     ],
     "stateMutability": "view",
@@ -451,9 +471,9 @@ var ItemABI= [
             "type": "uint256"
           },
           {
-            "internalType": "string",
-            "name": "imgCID",
-            "type": "string"
+            "internalType": "string[]",
+            "name": "imgCIDs",
+            "type": "string[]"
           },
           {
             "internalType": "address payable",

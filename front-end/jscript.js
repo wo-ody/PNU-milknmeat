@@ -3,6 +3,7 @@ const app = express()
 const port = 3000
 const Web3 = require('web3');
 
+
 app.use(express.static('public'))
 
 app.get('/', (req, res) => res.send('Hello World!'))

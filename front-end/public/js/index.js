@@ -6,9 +6,9 @@ var rwSupply_sol;
 // 페이지 로드될때마다, 컨트랙트랑 연동시켜주기
 
 async function startApp() {
-	var AuctionAddress = "0x485889d873FEfd8C39d7FD882Ee009D0AAEE8450";
-	var ItemAddress = "0xe75dFd86e5e713DA577612b1a6DdE27917701576";
-	var SupplyAddress = "0x6E6EdbAEC3746946fF5E65d47CA332177471D761";
+	var AuctionAddress = "0xf476eF4b1FFF09De9F626fA54Dbe199cDF58EA73";
+	var ItemAddress = "0xe1E4E5f6f3F7E0967adC425f1cB6790e21E1C1d9";
+	var SupplyAddress = "0x6f6b26199d1B24A273F0bBb9827cfa0d4CC5F1D0";
 	var rwSupplyAddress;
 
 	Auction_sol = await new web3.eth.Contract(AuctionABI, AuctionAddress);

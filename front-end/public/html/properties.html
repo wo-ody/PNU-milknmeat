@@ -190,6 +190,7 @@
 			console.log(auction_item);
 			console.log('a')
 			var cnt = auction_item.length;
+			var imgCIDs = new Array();
 			
 			//auction에 등록된 개수만큼 반복 (이 때 auction에 저장된 아이템의 인덱스는 auction에 등록된 순서대로(itemid와는 다름.))
 			for(var i=0; i<cnt; i++){
@@ -214,13 +215,19 @@
 				//single에 넘겨주는 id는 itemid가 아닌 인덱스. 
 				//0726 수정) item_idx 로 single에 넘겨줌
 				var id = i;
+
+				imgCIDs = await Item_sol.methods.getImageCIDsById(item_idx).call();
+				
+				console.log(imgCIDs);
+				var imgCID = imgCIDs[0];
 				
 				t_deck.innerHTML += 
 				'<div class="col-xs-12 col-sm-6 col-md-6 col-lg-4">' +
 					'<div class="property-item mb-30">' +
 						'<a href="single.html?id='+ id +'"' + ' class="img">' + 
-							'<img src="../images/img_1.jpg" alt="Image" class="img-fluid">' + 
-						'</a>' + 
+							'<img src="https://ipfs.io/ipfs/'+ imgCID +'" alt="Image" class="img-fluid" width = "500" height = "500">' + 
+						'</a>' 
+						+ 
 						'<div class="property-content">' +
 							'<div class="price mb-2"><span>'+ name +'</span></div>' +
 							'<div>' +

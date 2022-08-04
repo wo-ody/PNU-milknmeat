@@ -26,3 +26,13 @@
 05:21:22.097501 version@stat F·[2] S·1KiB[1KiB] Sc·[0.50]
 05:21:22.192106 db@janitor F·4 G·0
 05:21:22.192143 db@open done T·116.73075ms
+=============== Aug 4, 2022 (KST) ===============
+06:05:14.563481 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+06:05:14.564017 version@stat F·[2] S·1KiB[1KiB] Sc·[0.50]
+06:05:14.564037 db@open opening
+06:05:14.564085 journal@recovery F·1
+06:05:14.564763 journal@recovery recovering @6
+06:05:14.609321 memdb@flush created L0@8 N·29966 S·1MiB "H\x00\x16..4\x8ex,v25885":"unc..own,v23"
+06:05:14.610196 version@stat F·[3] S·1MiB[1MiB] Sc·[0.75]
+06:05:14.706211 db@janitor F·5 G·0
+06:05:14.706265 db@open done T·142.217541ms
