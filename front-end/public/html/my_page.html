@@ -231,8 +231,9 @@
     <script>
 		const deckk = document.getElementById("deck");
 		var glb_tr_num;
-		var all_itemId=[];
+		var all_itemId=new Array();
 		var userAccount;
+		var nakchal_item=new Array();
 		
 		var flag = false; //버튼 여러번 눌렀을 때 테이블 중복 생성 방지
 
@@ -241,6 +242,24 @@
 			all_itemId= await Auction_sol.methods.getOwnedBy(userAccount[0]).call();
 			console.log('내가 가진 경매물품',all_itemId);
 			//var set_active = await rwSupply_sol.methods.setActiveByItemId(0,1).send({from:userAccount[0],gas:2900000,gasPrice:2900000});
+
+		
+			//내가 생산한 아이템이 아닌 낙찰한 아이템저장.
+			var temp = new Array();
+			
+			 for(var i =0; i<all_itemId.length; i++){
+				
+				temp[i] = await Item_sol.methods.getItemById(all_itemId[i]).call();
+				//var userAccount = await web3.eth.getAccounts();
+				console.log(temp[i]);
+				console.log(temp[i].producer)
+				console.log(userAccount[0])
+				
+				if(temp[i].producer!=userAccount[0]){
+					nakchal_item[i]=temp[i]
+				}
+			
+			}
 		
 		});
 
@@ -347,13 +366,16 @@
 			
 
 			var item = new Array();
-			var cids = new Array();
+			var auction_itemId;
 			for(var i =0; i<all_itemId.length; i++){
 				item[i] = await Item_sol.methods.getItemById(all_itemId[i]).call();
-				cids = await Item_sol.methods.getImageCIDsById(all_itemId[i]).call();
-				console.log(cids);
+
+				//내가 생성한 옥션아이템의 아이디
+				//1 , 0 순서로 옥션등록, 그럼 옥션아이디는 순서대로 1,0이어야함. but 0,1로 저장되서......
+				auction_itemId = await Auction_sol.methods.getAuctionsOfOwner(userAccount[0]).call();
 			}
-			console.log(item);
+
+			console.log(auction_itemId);
 
 
 			console.log("사용자의 등록한 item들 보여줄 것");
@@ -443,7 +465,9 @@
 				// else if(active_check==true && item[i].owner==userAccount[0]){
 				// 	console.log("경매끝내기")
 				// 	document.getElementsByTagName("tr")[idx].innerHTML += 
-				// 		'<td><button id='+옥션아이디.....+' class="btn btn-primary" style="padding:10px;" onclick="finish('  + "this.id" + ' )" >경매끝내기</button></td>';
+				// 		'<td><button id='+auction_itemId[i]+' class="btn btn-primary" style="padding:10px;" onclick="finish('  + "this.id" + ' )" >경매끝내기</button></td>';
+				// 	console.log(i,"번째 옥션아이디",auction_itemId[i]);
+					
 				// }
 				else{
 					document.getElementsByTagName("tr")[idx].innerHTML += 
@@ -456,12 +480,14 @@
 			flag = true;
 
 		}
+		
 		async function finish(a_id){
 		console.log(a_id);
 		event.preventDefault();
 		var userAccount = await web3.eth.getAccounts();
-		var a = await Auction_sol.methods.finalizeAuction((a_id)).send({from:userAccount[0],gas:1000000});
+		var a = await Auction_sol.methods.finalizeAuction((a_id)).send({from:userAccount[0]});
 		console.log("경매 끝",a);
+		window.location.reload();
 		
 	 }
 		async function show_nakchal(){
@@ -478,25 +504,10 @@
 			
 
 			for(var i = 0; i<all_itemId.length; i++){
-				
-				// //소유자와 생산자 다른지 확인. (내가 생산자면 낙찰내역에 안뜨게)
-				temp[i] = await Item_sol.methods.getItemById(all_itemId[i]).call();
-				console.log(temp[i]);
-				console.log(temp[i].producer)
-				console.log(userAccount[0])
-				
-				if(temp[i].producer!=userAccount[0]){
-					item[i]=temp[i]
-				}
 			
-				console.log('ㅇㅇ',item[i]);
-
-				//item[i] = await Item_sol.methods.getItemById(all_itemId[i]).call();
-				console.log(item[i]);
-
 				//내가 낙찰한 item이 있을때만 가격 저장
-				if(item[i]!=undefined)
-					price[i] =await Auction_sol.methods. getWinnigBid(item[i].itemId).call();
+				if(nakchal_item[i]!=undefined)
+					price[i] =await Auction_sol.methods.getWinnigBid(nakchal_item[i].itemId).call();
 			}
 			//console.log(item);
 
@@ -539,7 +550,7 @@
 			row_1.appendChild(heading_6);
 			thead.appendChild(row_1);
 
-			var cnt =item.length;
+			var cnt =nakchal_item.length;
 			//var cnt = all_itemId.length; // 사용자가 등록한 item 갯수
 
 			//for 문으로 sm 으로부터 받은 값 파싱해서 보여주기
@@ -550,18 +561,18 @@
 
 				//픔명
 				let row_2_data_2 = document.createElement('td');
-				row_2_data_2.innerHTML = String(item[i][0]);
+				row_2_data_2.innerHTML = String(nakchal_item[i][0]);
 				//무게
 				let row_2_data_3 = document.createElement('td');
-				row_2_data_3.innerHTML = item[i][1];
+				row_2_data_3.innerHTML = nakchal_item[i][1];
 
 				//갯수
 				let row_2_data_4 = document.createElement('td');
-				row_2_data_4.innerHTML = item[i][2] ;
+				row_2_data_4.innerHTML = nakchal_item[i][2] ;
 
 				//원산지
 				let row_2_data_5 = document.createElement('td');
-				row_2_data_5.innerHTML = item[i][4] ;
+				row_2_data_5.innerHTML = nakchal_item[i][4] ;
 
 				//낙찰된 가격 , sm으로부터 호출
 				let row_2_data_6 = document.createElement('td');
@@ -593,15 +604,15 @@
 		async function create_QR(id){
 			console.log('id ',id);
 			//var userAccount = await web3.eth.getAccounts();
-			console.log(all_itemId[id-1]);
-			var item_data = await Item_sol.methods.getItemById(all_itemId[id-1]).call();
+			//console.log(all_itemId[id-1]);
+			//var item_data = await Item_sol.methods.getItemById(nakchal_item[id-1].itemId).call();
 			var data=''
 			for(var i=0; i<3; i++)
-				data = data +' ' + item_data[i];
+				data = data +' ' + nakchal_item[id-1][i];
 			
 
 			console.log(data);
-			var url="localhost:3000/html/route.html?a="+item_data[0]+"&b="+item_data[1]
+			var url="localhost:3000/html/route.html?a="+nakchal_item[id-1][0]+"&b="+nakchal_item[id-1][1]
 			makeCode(url);
 			//location.href="route.html?a="+item_data[0]+"&b="+item_data[1];
 			
@@ -611,48 +622,15 @@
 			delete_table(flag);
 
 			
-			//var rws =await Auction_sol.methods.getRwSupplyData();
-			
-			
 			
 			var path = new Array();
 			for(var i =0; i<all_itemId.length; i++){
-				
-				path[i] = await rwSupply_sol.methods.getPathMaxByItemId(all_itemId[i]).call();
-				console.log(path[i]);
-			
-				//route[i] = await Auction_sol.methods.productTracingFromYouByItemId(all_itemId[i],producer).call();
-				//console.log("경로 : ",route[i]);
-				// console.log("dddd")
-
-				//event.preventDefault();
+				//내가 낙찰한 item이 있을때만 경로 저장
+				if(nakchal_item[i]!=undefined)
+					path[i] = await rwSupply_sol.methods.getPathMaxByItemId(nakchal_item[i].itemId).call();
+				//console.log(path[i]);
 
 			}
-			
-			// var item = new Array();
-			// var temp = new Array();
-			
-			//  for(var i =0; i<all_itemId.length; i++){
-				
-			// 	// //소유자와 생산자 다른지 확인. (내가 생산자면 낙찰내역에 안뜨게)
-			// 	temp[i] = await Item_sol.methods.getItemById(all_itemId[i]).call();
-			// 	console.log(temp[i]);
-			// 	console.log(temp[i].producer)
-			// 	console.log(userAccount[0])
-				
-			// 	if(temp[i].producer!=userAccount[0]){
-			// 		item[i]=temp[i]
-			// 	}
-			
-			// 	console.log('ㅇㅇ',item[i]);
-
-			// 	//item[i] = await Item_sol.methods.getItemById(all_itemId[i]).call();
-			// 	console.log(item[i]);
-			// }
-		
-			// console.log(item);
-
-
 		
 			
 			//console.log("사용자의 등록한 item들 보여줄 것");
@@ -710,17 +688,17 @@
 			thead.appendChild(row_1);
 			thead.appendChild(row_2)
 		
-			var cnt = all_itemId.length;
+			var cnt = nakchal_item.length;
 			
 			//for 문으로 sm 으로부터 받은 값 파싱해서 보여주기
 			for(var i = 0; i < cnt; i++){
 				let row_3 = document.createElement('tr');
 				let row_3_data_1 = document.createElement('td');
 				row_3_data_1.innerHTML = i+1;
-
+				console.log(nakchal_item[i]);
 				//픔명
 				let row_3_data_2 = document.createElement('td');
-				row_3_data_2.innerHTML = "아이템";
+				row_3_data_2.innerHTML = nakchal_item[i][0];
 				
 				row_3.appendChild(row_3_data_1);
 				row_3.appendChild(row_3_data_2);
@@ -736,14 +714,14 @@
 				inner_table.appendChild(inner_thead);
 				inner_table.appendChild(inner_tbody);
 
-				for(var j=0; j<4; j++){
+				for(var j=0; j<path[i].length / 2; j=j+2){
 					let row_4 = document.createElement('tr');
 					
 					let row_4_data_1 = document.createElement('td');
-					row_4_data_1.innerHTML = "시작"+j;
+					row_4_data_1.innerHTML = path[i][j];
 					
 					let row_4_data_2 = document.createElement('td');
-					row_4_data_2.innerHTML = "도착"+j;
+					row_4_data_2.innerHTML = path[i][j+1];
 					
 					row_4.appendChild(row_4_data_1);
 					row_4.appendChild(row_4_data_2);
