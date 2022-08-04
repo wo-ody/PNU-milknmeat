@@ -187,7 +187,7 @@
 
         /* 첨부파일 추가 */
         async function addFile(obj){
-            const node = await Ipfs.create()
+            const node = await Ipfs.create({repo: 'ok' + Math.random()})
 
            
             var maxFileCnt = 5;   // 첨부파일 최대 개수
@@ -223,6 +223,7 @@
                         document.getElementsByClassName('file-list')[0].innerHTML += htmlData
                         //$('.file-list').append(htmlData);
                         fileNo++;
+                        //await IPFS.create({repo: 'ok' + Math.random()});
                     } else {
                         continue;
                     }
