@@ -101,15 +101,18 @@
 		<div class="container">
 			<div class="row justify-content-between">
 				<div class="col-lg-5">
+
 					<div class="img-property-slide-wrap">
-						<div class="img-property-slide">
-							<div id = "img01" class = "img-fluid"></div>
+						<div id="imgP" class="img-property-slide">
+							<!-- <div id = "img01" class = "img-fluid"></div>
 							<div id = "img02" class = "img-fluid"></div>
 							<div id = "img03" class = "img-fluid"></div>
 							<div id = "img04" class = "img-fluid"></div>
-							<div id = "img05" class = "img-fluid"></div>
+							<div id = "img05" class = "img-fluid"></div> -->
 						</div>
 					</div>
+
+
 				</div>
 				<div class="col-lg-6">
 					<div id = "item_info">
@@ -142,6 +145,10 @@
 			</div>
 		</div>
 	</div>
+	<hr>
+	<div id = "place_img" style = "margin: 50px;"> 
+		<h1> 상세 이미지 </h1>
+	</div>
 
      <!-- Preloader -->
      <div id="overlayer"></div>
@@ -157,27 +164,20 @@
 	</div>
      <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
 
+	 <script src="../js/index.js"></script>
 	 <script src="../auction_abi.js"></script>
 	 <script src="../Item_abi.js"></script>
      <script src="../Supply_abi.js"></script>
 	 <script src="../rwSupply_abi.js"></script>
 
   
-     
-	 <script src="../js/index.js"></script>
-     <script src="../js/bootstrap.bundle.min.js"></script>
-     <script src="../js/tiny-slider.js"></script>
-     <script src="../js/aos.js"></script>
-     <script src="../js/navbar.js"></script>
-     <script src="../js/counter.js"></script>
-     <script src="../js/custom.js"></script>
      <script>
         var info_item;
 		var info_auction;
 		var a_id;
 		var i_id;
+
      window.addEventListener("load", async function() {
-        
 		
 		//경매목록에서 넘겨받은 id 저장
 		var imgArr = new Array();
@@ -197,22 +197,32 @@
 		 img_item = await Item_sol.methods.getImageCIDsById(i_id).call();
 
 		 console.log(img_item);
+		 //console.log(img_item.length)
 
-		 for(const imgCID of img_item){
-			var imgId = "img0" + cnt.toString();
-			//console.log(imgId);
-			var imgN = document.getElementById(imgId);
-			imgHtml = '<img src="https://ipfs.io/ipfs/'+ imgCID +'" alt="Image"/>';
-			//console.log(imgHtml)
-			imgN.innerHTML += imgHtml;
-			cnt++;
-		 }
+		//  for(const imgCID of img_item){
+		// 	var imgId = "img0" + cnt.toString();
+		// 	//console.log(imgId);
+		// 	var imgN = document.getElementById(imgId);
+		// 	imgHtml = '<img src="https://ipfs.io/ipfs/'+ imgCID +'" alt="Image"/>';
+		// 	//console.log(imgHtml)
+		// 	imgN.innerHTML += imgHtml;
+		// 	cnt++;
+		//  }
+		var imgP = document.getElementById('imgP');
+		imgP.innerHTML += '<img src="https://ipfs.io/ipfs/'+ img_item[0] +'" alt="Image" style = "width: 400px; height:auto;"/>';
 
-		 for(var delIdx = cnt;delIdx<=5;delIdx++){
-			var imgId = "img0" + delIdx.toString();
-			const imgN = document.getElementById(imgId);
-			imgN.style.display = "none";
-		 }
+		var place_img = document.getElementById('place_img');
+		for(var i=1;i<img_item.length;i++){
+			place_img.innerHTML += '<img src="https://ipfs.io/ipfs/'+ img_item[i] +'" alt="Image" style = "width: 400px; height:auto;"/>';
+		}
+
+		 
+		//  for(var delIdx = cnt;delIdx<=5;delIdx++){
+		// 	var imgId = "img0" + delIdx.toString();
+		// 	const imgN = document.getElementById(imgId);
+			
+		// 	delimgP.removeChild(delimgP.children[delIdx]);
+		//  }
 
 
 		 const info = document.getElementById("item_info");
@@ -270,6 +280,7 @@
 		var bidVal = parseInt(bidform.txt1.value);
 		var a = await Auction_sol.methods.bidOnAuction(parseInt(a_id),bidform.txt2.value).send({from:userAccount[0],value:bidVal});
 		console.log('경매 참여',a);
+		alert('입찰에 참여하셨습니다. ');
 
 
 	 }
@@ -279,9 +290,16 @@
 		var userAccount = await web3.eth.getAccounts();
 		var a = await Auction_sol.methods.finalizeAuction((a_id)).send({from:userAccount[0]});
 		console.log("경매 끝",a);
+		alert('경매를 종료하였습니다. ');
 		
 	 }
      </script>
+     <script src="../js/bootstrap.bundle.min.js"></script>
+     <script src="../js/tiny-slider.js"></script>
+     <script src="../js/aos.js"></script>
+     <script src="../js/navbar.js"></script>
+     <script src="../js/counter.js"></script>
+     <script src="../js/custom.js"></script>
  
    </body>
  

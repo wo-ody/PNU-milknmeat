@@ -190,7 +190,7 @@
             const node = await Ipfs.create({repo: 'ok' + Math.random()})
 
            
-            var maxFileCnt = 5;   // 첨부파일 최대 개수
+            var maxFileCnt = 15;   // 첨부파일 최대 개수
             var attFileCnt = document.querySelectorAll('.filebox').length;    // 기존 추가된 첨부파일 개수
             var remainFileCnt = maxFileCnt - attFileCnt;    // 추가로 첨부가능한 개수
             var curFileCnt = obj.files.length;  // 현재 선택된 첨부파일 개수       
@@ -223,7 +223,6 @@
                         document.getElementsByClassName('file-list')[0].innerHTML += htmlData
                         //$('.file-list').append(htmlData);
                         fileNo++;
-                        //await IPFS.create({repo: 'ok' + Math.random()});
                     } else {
                         continue;
                     }
