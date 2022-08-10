@@ -11,6 +11,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="author" content="Untree.co">
 	<link rel="shortcut icon" href="../favicon.png">
+	<script src="http://code.jquery.com/jquery-latest.js"></script>
 
 	<meta name="description" content="" />
 	<meta name="keywords" content="bootstrap, bootstrap5" />
@@ -252,6 +253,31 @@
 
      })
 
+
+	 function LoadingWithMask() {
+            var maskHeight = $(document).height();
+            var maskWidth = window.document.body.clientWidth;
+            //화면에 출력할 마스크를 설정해줍니다.   
+            var mask = "<div id='mask' style='position:absolute; z-index:9000; background-color:#000000; display:none; left:0; top:0; align-items:center; display: flex; justify-content:center;'>";
+          
+            mask += "<img src='../images/Spinner.gif' style=' position:relative; display: block;  margin: 0px auto;'/></div>";
+           
+            $('body')
+                .append(mask)
+ 
+            $('#mask').css({'width' : maskWidth, 'height': maskHeight, 'opacity' : '0.3'});
+            //마스크 표시    
+            $('#mask').show();
+          
+           }
+           
+        function closeLoadingWithMask(){
+            $('#mask').hide();
+            $('#mask').remove(); 
+        }
+
+
+
 	 async function bid_start(){
 		 console.log("입찰 참여함");
 
@@ -278,7 +304,15 @@
 		//입찰 시작 sm호출
 		var userAccount = await web3.eth.getAccounts();
 		var bidVal = parseInt(bidform.txt1.value);
-		var a = await Auction_sol.methods.bidOnAuction(parseInt(a_id),bidform.txt2.value).send({from:userAccount[0],value:bidVal});
+		try{
+			LoadingWithMask()
+			var a = await Auction_sol.methods.bidOnAuction(parseInt(a_id),bidform.txt2.value).send({from:userAccount[0],value:bidVal});
+		}catch(err){
+			return
+		}finally{
+			closeLoadingWithMask()
+		}
+		
 		console.log('경매 참여',a);
 		alert('입찰에 참여하셨습니다. ');
 
@@ -288,7 +322,15 @@
 	 async function finish(){
 		event.preventDefault();
 		var userAccount = await web3.eth.getAccounts();
-		var a = await Auction_sol.methods.finalizeAuction((a_id)).send({from:userAccount[0]});
+		try{
+			LoadingWithMask()
+			var a = await Auction_sol.methods.finalizeAuction((a_id)).send({from:userAccount[0]});
+		}catch(err){
+			return
+		}finally{
+			closeLoadingWithMask()
+		}
+		
 		console.log("경매 끝",a);
 		alert('경매를 종료하였습니다. ');
 		

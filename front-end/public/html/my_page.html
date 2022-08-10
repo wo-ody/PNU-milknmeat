@@ -124,7 +124,7 @@
 				</div>
 				<div class="col-lg-4">
 					<div class="d-flex feature-h">
-						<span class="wrap-icon me-3" onclick="show_receipt()">
+						<span class="wrap-icon me-3" onclick="a()">
 							<span class="icon-home2"></span>
 						</span>
 						<div class="feature-text">
@@ -263,6 +263,30 @@
 		
 		});
 
+
+		function LoadingWithMask() {
+            var maskHeight = $(document).height();
+            var maskWidth = window.document.body.clientWidth;
+            //화면에 출력할 마스크를 설정해줍니다.   
+            var mask = "<div id='mask' style='position:absolute; z-index:9000; background-color:#000000; display:none; left:0; top:0; align-items:center; display: flex; justify-content:center;'>";
+          
+            mask += "<img src='../images/Spinner.gif' style=' position:relative; display: block;  margin: 0px auto;'/></div>";
+           
+            $('body')
+                .append(mask)
+ 
+            $('#mask').css({'width' : maskWidth, 'height': maskHeight, 'opacity' : '0.3'});
+            //마스크 표시    
+            $('#mask').show();
+          
+           }
+           
+        function closeLoadingWithMask(){
+            $('#mask').hide();
+            $('#mask').remove(); 
+        }
+
+
 		function removeAllchild(div) {
 			while (div.hasChildNodes()) {
 				div.removeChild(div.firstChild);
@@ -307,7 +331,14 @@
 			console.log("아이템 아이디",all_itemId[glb_tr_num-1])
 
 			//경매에 아이템 등록
-			var create_Auction = await Auction_sol.methods.createAuction(auctionTitle,startPrice,itemId,blockDeadLine,route).send({from:userAccount[0]});
+			try{
+				LoadingWithMask()
+				var create_Auction = await Auction_sol.methods.createAuction(auctionTitle,startPrice,itemId,blockDeadLine,route).send({from:userAccount[0]});
+			}catch(err){
+
+			}finally{
+				closeLoadingWithMask()
+			}
 			//등록한 아이템의 경매상태 active
 			//var set_active = await rwSupply_sol.methods.setActiveByItemId(itemId,1).send({from:userAccount[0]});
 			//console.log("ㅇㅔㄱㅌㅣㅂㅡ",create_Auction);
@@ -357,9 +388,24 @@
 			location.href = "#deck";
 
 		}
+		
+		function a(){
+			try{
+			LoadingWithMask()
+			show_receipt()
+			}catch(err){
 
+			}finally{
+
+			setTimeout(function() {
+            console.log('Hello World!');
+            closeLoadingWithMask()
+            }, 2000);
+		}
+
+		}
         async function show_receipt(){
-
+			
 			//flag 가 true면 보여지는 table 삭제해야함
 			delete_table(flag);
 			//var userAccount = await web3.eth.getAccounts();
@@ -485,7 +531,14 @@
 		console.log(a_id);
 		event.preventDefault();
 		var userAccount = await web3.eth.getAccounts();
-		var a = await Auction_sol.methods.finalizeAuction((a_id)).send({from:userAccount[0]});
+		try{
+			LoadingWithMask()
+			var a = await Auction_sol.methods.finalizeAuction((a_id)).send({from:userAccount[0]});
+		}catch(err){
+			return
+		}finally{
+			closeLoadingWithMask()
+		}
 		console.log("경매 끝",a);
 		window.location.reload();
 		

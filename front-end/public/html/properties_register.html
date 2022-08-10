@@ -12,6 +12,8 @@
 	<meta name="author" content="Untree.co">
 	<link rel="shortcut icon" href="../favicon.png">
 
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+
 	<meta name="description" content="" />
 	<meta name="keywords" content="bootstrap, bootstrap5" />
 	
@@ -184,6 +186,33 @@
     <script>
         var fileNo = 0;
         var filesArr = new Array();
+        function LoadingWithMask() {
+            var maskHeight = $(document).height();
+            var maskWidth = window.document.body.clientWidth;
+            //화면에 출력할 마스크를 설정해줍니다.   
+            var mask = "<div id='mask' style='position:absolute; z-index:9000; background-color:#000000; display:none; left:0; top:0; align-items:center; display: flex; justify-content:center;'>";
+          
+            mask += "<img src='../images/Spinner.gif' style=' position:relative; display: block;  margin: 0px auto;'/></div>";
+           
+            $('body')
+                .append(mask)
+ 
+            $('#mask').css({'width' : maskWidth, 'height': maskHeight, 'opacity' : '0.3'});
+            //마스크 표시    
+            $('#mask').show();
+          
+           }
+           
+        function closeLoadingWithMask(){
+            $('#mask').hide();
+            $('#mask').remove(); 
+        }
+              
+            
+          
+        
+      
+    
 
         /* 첨부파일 추가 */
         async function addFile(obj){
@@ -313,13 +342,23 @@
 
             
             //수정_0725_류지환
-            alert('상품을 등록합니다.');
-            let create_item = await Item_sol.methods.createItem(fish,kg,count,from, filesArr).send({from:userAccount[0]});
-            let item_id = await Item_sol.methods.createItem(fish,kg,count,from,filesArr).call()-1;
-            alert('보유한 상품 목록에 추가합니다.');
-            let push_Owned_By = await Auction_sol.methods.pushOwnedBy(item_id).send({from:userAccount[0]});
-            alert('블록체인에 상품의 정보를 저장합니다.');
-            let create_supply_data = await Auction_sol.methods.createSupplyData(item_id).send({from:userAccount[0]});
+            
+            try {
+                alert('상품을 등록합니다.');
+                LoadingWithMask()
+                let create_item = await Item_sol.methods.createItem(fish,kg,count,from, filesArr).send({from:userAccount[0]});
+                let item_id = await Item_sol.methods.createItem(fish,kg,count,from,filesArr).call()-1;
+                //alert('보유한 상품 목록에 추가합니다.');
+                let push_Owned_By = await Auction_sol.methods.pushOwnedBy(item_id).send({from:userAccount[0]});
+                //alert('블록체인에 상품의 정보를 저장합니다.');
+                let create_supply_data = await Auction_sol.methods.createSupplyData(item_id).send({from:userAccount[0]});
+            }catch(err){
+                return
+            } finally{
+                closeLoadingWithMask()
+            }
+            
+           
             console.log(create_item);
             console.log("아이템 아이디",item_id);
             
