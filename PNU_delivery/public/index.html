@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+
+        <title>Wep API Bluetooth</title>
+
+        <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+        <script language="javascript" type="text/javascript" src="libraries/p5.min.js"></script>
+        <script language="javascript" type="text/javascript" src="libraries/p5.ble.js"></script>
+        <script language="javascript" type="text/javascript" src="js/bluetooth.js"></script>
+        <script language="javascript" type="text/javascript" src="js/index.js"></script>
+    
+    </head>
+    <body id="page-top">
+        <div class="container">
+            <div class="row">
+                <div id = "ConnBtn" class="col text-center">
+                <button id = "btn1">연결하시겠습니까 ?></button>
+                </div>
+            </div>
+            <div id = "MeasureBtn" class="col text-center" style = "visibility:visible;">
+                <button id = "btn2" >측정하기</button>
+            </div>
+        </div>
+        <script>
+            let blueTooth;
+            let blueToothCharacteristic;//this is a blu
+
+            
+            window.addEventListener('load',function() {
+                blueTooth = new p5ble();
+            })
+
+            const btn1 = document.getElementById('btn1');
+            const btn2 = document.getElementById('btn2');
+
+            btn1.addEventListener('click',function(){
+                connectToBle();
+            })
+
+            btn2.addEventListener('click',function(){
+                MeasureData();
+            })
+
+
+
+
+        </script>
+        
+    </body>
+</html>
