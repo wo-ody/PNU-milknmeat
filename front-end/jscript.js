@@ -2,11 +2,31 @@ const express = require('express')
 const app = express()
 const port = 3000
 const Web3 = require('web3');
+var options = {
+    timeout: 30000, // ms
 
+    clientConfig: {
+        // Useful if requests are large
+        maxReceivedFrameSize: 100000000,   // bytes - default: 1MiB
+        maxReceivedMessageSize: 100000000, // bytes - default: 8MiB
+
+        // Useful to keep a connection alive
+        keepalive: true,
+        keepaliveInterval: 60000 // ms
+    },
+
+    // Enable auto reconnection
+    reconnect: {
+        auto: true,
+        delay: 5000, // ms
+        maxAttempts: 5,
+        onTimeout: false
+    }
+};
 
 app.use(express.static('public'))
 
-app.get('/', (req, res) => res.send('Hello World!'))
+app.get('/', (req, res) => res.send('Hello World!', options))
  
 // app.get('/Path1', (req, res) => res.send('Get Path1'))
 // app.get('/Path2', (req, res) => res.send('Get Path2'))

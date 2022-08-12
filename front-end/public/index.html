@@ -132,9 +132,10 @@
 
 	<script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
     <script src="./auction_abi.js"></script>
-	<script src="./rwSupply_abi.js"></script>
 	<script src="./Item_abi.js"></script>
 	<script src="./Supply_abi.js"></script>
+	<script src="./owner_abi.js"></script>
+	<script src="./SupplyManaging_abi.js"></script>
 	
 
     <script src="js/index.js"></script>
@@ -144,6 +145,8 @@
     <script src="js/counter.js"></script>
     <script src="js/custom.js"></script>
 	<script>
+
+		
 		
 		//인증버튼 눌렀을때
 		async function register(){
@@ -152,7 +155,8 @@
             console.log(userAccount[0]);
 
 			//생산자 등록
-			let set_producer = await Item_sol.methods.setOwnerToProducer(1).send({from:userAccount[0]});  
+			let set_producer = await Item_sol.methods.setUserToProducer(1).send({from:userAccount[0]});  
+			alert("접속한 계정이 생성자로 등록되었습니다.");
 			//생산자 등록 체크 
 			let check_producer = await Item_sol.methods.getProducerCheck(userAccount[0]).call();
 			
@@ -167,7 +171,7 @@
 
 		//페이지 로드될때 버튼상태.
 		window.addEventListener("load", async function() {
-			var userAccount = await web3.eth.getAccounts();
+			var userAccount = await web3.eth.getAccounts(); 
 			console.log(userAccount);
 
             console.log(userAccount[0]);

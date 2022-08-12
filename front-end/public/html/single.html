@@ -122,9 +122,12 @@
 					<div class="d-block agent-box p-5">
 						<div class="text">
 							<h1> 입찰하시겠습니까 ? </h1>
-							<h3 id = "bid_start_price" class="mb-0" style="color: red;" >입찰 초기 가격 : </h3>
+							<h3 id = "bid_start_price" class="mb-0" style="color: red;" >초기 가격 : </h3>
+							<h3 id = "StartTime" class="mb-0" style="color: red;" >시작 시간 : </h3>							
+							<h3 id = "Deadline" class="mb-0" style="color: red;" >마감 시간 : </h3>	
 							<form action="#" name = "bidform" style="margin-top: 20px;">
-								<div class="row">
+		
+							<div class="row">
 									<div class="col-6 mb-3">  
 										<input type="text" name="txt1" class="form-control" placeholder="입찰가격">
 									</div>
@@ -133,11 +136,10 @@
 									</div>
 									
 									<div class="col-12 mb-3">
-										<input type="button" value="입찰 참여" class="btn btn-primary" onclick="bid_start()">
+										<input type="button" id='bid_btn' value="입찰 참여" class="btn btn-primary" onclick="bid_start()">
 									</div>
 
 									<div id="btn"></div>
-									
 								</div>
 							</form>
 						</div>
@@ -169,7 +171,8 @@
 	 <script src="../auction_abi.js"></script>
 	 <script src="../Item_abi.js"></script>
      <script src="../Supply_abi.js"></script>
-	 <script src="../rwSupply_abi.js"></script>
+	 <script src="../owner_abi.js"></script>
+	<script src="../SupplyManaging_abi.js"></script>
 
   
      <script>
@@ -209,6 +212,27 @@
 		// 	imgN.innerHTML += imgHtml;
 		// 	cnt++;
 		//  }
+
+		startStamp = info_auction.startTime * 1000;
+		deadStamp = info_auction.blockDeadline * 1000;
+
+		var start = new Date(startStamp);
+		var dead = new Date(deadStamp);
+
+		document.getElementById('StartTime').innerHTML += start.getFullYear()+
+				"년 "+(start.getMonth()+1)+
+				"월 "+start.getDate()+
+				"일 "+start.getHours()+
+				"시 "+start.getMinutes()+
+				"분 "+start.getSeconds()+"초";
+
+		document.getElementById('Deadline').innerHTML += dead.getFullYear()+
+				"년 "+(dead.getMonth()+1)+
+				"월 "+dead.getDate()+
+				"일 "+dead.getHours()+
+				"시 "+dead.getMinutes()+
+				"분 "+dead.getSeconds()+"초";
+		
 		var imgP = document.getElementById('imgP');
 		imgP.innerHTML += '<img src="https://ipfs.io/ipfs/'+ img_item[0] +'" alt="Image" style = "width: 400px; height:auto;"/>';
 
@@ -230,13 +254,14 @@
 		 info.innerHTML = 
 		 		'<h2 class="heading text-primary">' + info_item.name + '</h2>' + 
 				'<p class="meta"> 원산지 : ' + info_item.origin + '</p>' +
-				'<p class="text-black-50">' + '무게 : '+ info_item.weight + ' 갯수 : ' + info_item.stock +'</p>';
+				'<p class="text-black-50">' + '무게 : '+ info_item.weight + ' 개수 : ' + info_item.stock +'</p>';
 
-		document.getElementById("bid_start_price").innerHTML += (info_auction.startPrice + '원');
+		document.getElementById("bid_start_price").innerHTML += (info_auction.startPrice + ' Wei');
 
 		var userAccount = await web3.eth.getAccounts();
 		if(info_auction.owner==userAccount[0]){
 			console.log("owner")
+			document.getElementById('bid_btn').style.display = 'none';
 				document.getElementById('btn').innerHTML+=
 						'<td><button class="btn btn-primary" onclick="finish()" >경매끝내기</button></td>';
 		}
@@ -281,7 +306,7 @@
 	 async function bid_start(){
 		 console.log("입찰 참여함");
 
-		 if ( bidform.txt1.value == "") {
+		 if (bidform.txt1.value == "") {
 			bidform.txt1.focus();
 			alert("입찰 하고자 하는 가격을 입력해주세요. ");
 			event.preventDefault();
@@ -307,14 +332,18 @@
 		try{
 			LoadingWithMask()
 			var a = await Auction_sol.methods.bidOnAuction(parseInt(a_id),bidform.txt2.value).send({from:userAccount[0],value:bidVal});
+			console.log('경매 참여',a);
+			alert('입찰에 참여하셨습니다. ');
+
 		}catch(err){
+			console.log('경매 참여 실패',a);
+			alert("입찰에 실패했습니다.");
 			return
 		}finally{
 			closeLoadingWithMask()
 		}
 		
-		console.log('경매 참여',a);
-		alert('입찰에 참여하셨습니다. ');
+		
 
 
 	 }
@@ -323,16 +352,42 @@
 		event.preventDefault();
 		var userAccount = await web3.eth.getAccounts();
 		try{
-			LoadingWithMask()
+			LoadingWithMask();
+
 			var a = await Auction_sol.methods.finalizeAuction((a_id)).send({from:userAccount[0]});
+			console.log("경매 끝",a);
+			alert('경매를 종료하였습니다. ');
 		}catch(err){
+			let finalizeEarly = Auction_sol.events.EarlyToFinalize({userAddress:userAccount[0], fromBlock:"latest", }).on("data", async function(event){
+                console.log(event);
+                result = event.returnValues;
+                var userAddress = result[0];
+				var blockTimestamp = result[1];
+				var blockDeadline = result[2];
+				console.log(new Data(blockTimestamp), new Data(blockDeadline));
+				console.log("Too Early to finalize!");
+                
+                alert('아직 마감 시간이 되지 않아 경매를 끝내지 못했습니다.');
+            });
+		
+			let cancelAuction = Auction_sol.events.CancelAuction({userAddress: userAccount[0], fromBlock:"latest",}).on("data", async function(event){
+				console.log(event);
+				result = event.returnValues;
+				var userAddress = result[0];
+				var cancelId = result[1];
+				console.log("Auction is cancel.");
+
+				alert("경매가 취소되었습니다.");
+			});
+			console.log("마감 실패",a);
+			alert('경매를 종료하지 못했습니다. ');
+
 			return
 		}finally{
 			closeLoadingWithMask()
 		}
 		
-		console.log("경매 끝",a);
-		alert('경매를 종료하였습니다. ');
+		
 		
 	 }
      </script>

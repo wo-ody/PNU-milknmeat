@@ -166,8 +166,9 @@
     <script src="../auction_abi.js"></script>
 	<script src="../Item_abi.js"></script>
 	<script src="../Supply_abi.js"></script>
-	<script src="../rwSupply_abi.js"></script>
 	<script src="../js/index.js"></script>
+	<script src="../owner_abi.js"></script>
+	<script src="../SupplyManaging_abi.js"></script>
 
     <script src="../js/bootstrap.bundle.min.js"></script>
     <script src="../js/tiny-slider.js"></script>
@@ -196,10 +197,12 @@
 			for(var i=0; i<cnt; i++){
 				console.log(i);
 				var item = await Auction_sol.methods.getAuctionById(i).call();
-				console.log("ㅇㅔㄱㅌㅣㅡㅂ",item[4])
+				//var active = await Auction_sol.methods.getActiveByAuctionId(i).call();
+				var active = item.active;
+				console.log("active", active);
 				//var active = await rwSupply_sol.methods.getActiveByItemId(i).call();
 				//active ㅈㅓㅇㅂㅗ ㄱㅏㅈㅕㅇㅗㄱㅣ
-				if(item[4]==true){
+				if(active==true){
 				var name=auction_item[i].name;
 				var price=auction_item[i].startPrice;
 

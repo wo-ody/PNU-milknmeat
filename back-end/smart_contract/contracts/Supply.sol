@@ -10,25 +10,20 @@ contract SupplyContract{
     mapping(address => uint256) public addrToPathIdx;
     mapping(uint256 => address) public pathIdxToAddr;
 
+    string[] public envInformation; // 환경정보, 
 
     string[] public pathMax;
 
-    bool active = false;
-
-
-    mapping(address => bool     ) public producerCheck;
-
-    function getActive() public view returns(bool){
-        return active;
-    }
-
-    function setActive(bool _active) public returns(bool){
-        active = _active;
-        return active;
-    }
-
     function setAddrTracing(address _from, address _to) public {
         addrTracing[_to] = _from;
+    }
+
+    function pushEnvInformation(string memory _envInfo) public {
+        envInformation.push(_envInfo);
+    }
+
+    function getEnvInformation() public view returns(string[] memory){
+        return envInformation;
     }
 
     function getShippingAddrByIdx(uint256 _idx) public view returns(string memory){
@@ -41,11 +36,13 @@ contract SupplyContract{
 
     function setAddrToShippingAddr(address _from, address _to, string memory _fromStr, string memory _toStr) public {
         pathIdxToAddr[pathMax.length] = _from;
-        addrToPathIdx[_from] = pathMax.length;
         pathMax.push(_fromStr);
+        addrToPathIdx[_from] = pathMax.length-1;
+
         pathIdxToAddr[pathMax.length] = _to;
-        addrToPathIdx[_to] = pathMax.length;
         pathMax.push(_toStr);
+        addrToPathIdx[_to] = pathMax.length-1;
+
     }
 
     function getPathMax() public view returns(string[] memory){

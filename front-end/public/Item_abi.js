@@ -1,5 +1,21 @@
 var ItemABI= [
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_ownerDataContract",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_supplyManagingContract",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
@@ -35,6 +51,25 @@ var ItemABI= [
     "inputs": [
       {
         "indexed": false,
+        "internalType": "address",
+        "name": "_user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "_itmeId",
+        "type": "uint256"
+      }
+    ],
+    "name": "CreateSuccess",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
         "internalType": "bool",
         "name": "flag",
         "type": "bool"
@@ -42,31 +77,6 @@ var ItemABI= [
     ],
     "name": "SetOwnerToProducerEvent",
     "type": "event"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "auctionTracking",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function",
-    "constant": true
   },
   {
     "inputs": [
@@ -109,11 +119,6 @@ var ItemABI= [
         "type": "uint256"
       },
       {
-        "internalType": "address payable",
-        "name": "owner",
-        "type": "address"
-      },
-      {
         "internalType": "bool",
         "name": "active",
         "type": "bool"
@@ -137,6 +142,20 @@ var ItemABI= [
         "internalType": "bool",
         "name": "",
         "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function",
+    "constant": true
+  },
+  {
+    "inputs": [],
+    "name": "getOwnerDataContract",
+    "outputs": [
+      {
+        "internalType": "contract OwnerDataContract",
+        "name": "odc",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -172,6 +191,13 @@ var ItemABI= [
       }
     ],
     "name": "createItem",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getNewItemId",
     "outputs": [
       {
         "internalType": "uint256",
@@ -179,8 +205,9 @@ var ItemABI= [
         "type": "uint256"
       }
     ],
-    "stateMutability": "nonpayable",
-    "type": "function"
+    "stateMutability": "view",
+    "type": "function",
+    "constant": true
   },
   {
     "inputs": [
@@ -242,11 +269,6 @@ var ItemABI= [
             "internalType": "string[]",
             "name": "imgCIDs",
             "type": "string[]"
-          },
-          {
-            "internalType": "address payable",
-            "name": "owner",
-            "type": "address"
           },
           {
             "internalType": "bool",
@@ -422,6 +444,11 @@ var ItemABI= [
         "internalType": "uint256",
         "name": "itemId",
         "type": "uint256"
+      },
+      {
+        "internalType": "string[]",
+        "name": "imgCIDs",
+        "type": "string[]"
       }
     ],
     "stateMutability": "view",
@@ -476,11 +503,6 @@ var ItemABI= [
             "type": "string[]"
           },
           {
-            "internalType": "address payable",
-            "name": "owner",
-            "type": "address"
-          },
-          {
             "internalType": "bool",
             "name": "active",
             "type": "bool"
@@ -517,7 +539,7 @@ var ItemABI= [
         "type": "bool"
       }
     ],
-    "name": "setOwnerToProducer",
+    "name": "setUserToProducer",
     "outputs": [
       {
         "internalType": "bool",

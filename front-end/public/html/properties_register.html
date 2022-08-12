@@ -170,9 +170,10 @@
     <script src="https://cdn.jsdelivr.net/npm/ipfs/dist/index.min.js"></script>
    
     <script src="../auction_abi.js"></script>
-    <script src="../rwSupply_abi.js"></script> 
     <script src="../Item_abi.js"></script>
     <script src="../Supply_abi.js"></script>
+    <script src="../owner_abi.js"></script>
+	<script src="../SupplyManaging_abi.js"></script>
   
 
     <script src="../js/index.js"></script>
@@ -216,8 +217,6 @@
 
         /* 첨부파일 추가 */
         async function addFile(obj){
-            const node = await Ipfs.create({repo: 'ok' + Math.random()})
-
            
             var maxFileCnt = 15;   // 첨부파일 최대 개수
             var attFileCnt = document.querySelectorAll('.filebox').length;    // 기존 추가된 첨부파일 개수
@@ -234,12 +233,8 @@
                     if (validation(file)) {
                         // 파일 배열에 담기
 
-                        var results = await node.add(file);
-
+                        filesArr.push(file);
                         //var cid = getCIDFromFile(results);
-                        
-                        console.log(results.path);
-                        filesArr.push(results.path);
 
                     
                         // 목록 추가
@@ -318,14 +313,15 @@
         //     })
         // }
         async function sm_register_item(){
-           
+
             console.log(Auction_sol);
             var fish = String(myform.txt1.value);
             var kg = parseInt(myform.txt2.value);
             var count= parseInt(myform.txt3.value);
             var from= String(myform.txt4.value);
+            var CIDArr = new Array();
 
-            console.log(filesArr);
+            
            
             // 상품등록 성공
             //경매 물품에 상품 추가하기
@@ -346,21 +342,31 @@
             try {
                 alert('상품을 등록합니다.');
                 LoadingWithMask()
-                let create_item = await Item_sol.methods.createItem(fish,kg,count,from, filesArr).send({from:userAccount[0]});
-                let item_id = await Item_sol.methods.createItem(fish,kg,count,from,filesArr).call()-1;
-                //alert('보유한 상품 목록에 추가합니다.');
-                let push_Owned_By = await Auction_sol.methods.pushOwnedBy(item_id).send({from:userAccount[0]});
-                //alert('블록체인에 상품의 정보를 저장합니다.');
-                let create_supply_data = await Auction_sol.methods.createSupplyData(item_id).send({from:userAccount[0]});
+                const node = await Ipfs.create();
+
+                console.log(filesArr);
+
+                for await (var file of filesArr){
+                    var results = await node.add(file);
+
+                    //var cid = getCIDFromFile(results);
+                            
+                    console.log(results.path);
+                    CIDArr.push(results.path);
+    }
+                let create_item = await Item_sol.methods.createItem(fish,kg,count,from, CIDArr).send({from:userAccount[0]});
+                console.log(create_item);
+                alert('성공적으로 등록되었습니다.');
+
             }catch(err){
+                alert("아이템 등록에 실패했습니다.");
                 return
             } finally{
                 closeLoadingWithMask()
             }
             
            
-            console.log(create_item);
-            console.log("아이템 아이디",item_id);
+           
             
             
             // var item = new Array();
@@ -381,10 +387,6 @@
             //console.log(data)
             //console.log("아이디",bid)
             
-           
-            alert('성공적으로 등록되었습니다.');
-
-            
         }
 
         async function check_item_register(){
@@ -401,7 +403,7 @@
                 return;
 		    }
             if ( myform.txt3.value == "") {
-			    alert("등록하실 어류의 갯수를 입력해주세요 .");
+			    alert("등록하실 어류의 개수를 입력해주세요 .");
 			    myform.txt3.focus();
                 event.preventDefault();
                 return;

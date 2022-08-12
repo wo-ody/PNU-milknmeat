@@ -127,6 +127,7 @@
 						<span class="wrap-icon me-3" onclick="a()">
 							<span class="icon-home2"></span>
 						</span>
+	
 						<div class="feature-text">
 							<h3 class="heading">경매대에 물품 등록</h3>
 							<p class="text-black-50">등록하신 물품을 경매대로 올리게 되어, 소비자가 물품을 구매할 수 있게 됩니다.</p>   
@@ -174,10 +175,13 @@
 								<input type="text" name="txt2a" class="form-control" placeholder="시작가격">
 							</div>
                             <div class="col-4 mb-3">
-								<input type="datetime-local" step = "1" name="txt3a" class="form-control" placeholder="마감시간">
+								<input type="datetime-local" step = "1" name="txt3a" class="form-control" placeholder="시작시간">
 							</div>
 							<div class="col-4 mb-3">
 								<input type="text" name="txt4a" class="form-control" placeholder="주소">
+							</div>
+							<div class="col-4 mb-3">
+								<input type="datetime-local" step = "1" name="txt5a" class="form-control" placeholder="마감시간">
 							</div>
 							<div class="col-12">
 								<input type="button" value="등록" class="btn btn-primary" onclick="deck_register()">
@@ -218,7 +222,8 @@
     <script src="../auction_abi.js"></script>
     <script src="../Item_abi.js"></script>
     <script src="../Supply_abi.js"></script>
-	<script src="../rwSupply_abi.js"></script>
+	<script src="../owner_abi.js"></script>
+	<script src="../SupplyManaging_abi.js"></script>
 
 	<script src="../js/index.js"></script>
     <script src="../js/bootstrap.bundle.min.js"></script>
@@ -233,20 +238,22 @@
 		var glb_tr_num;
 		var all_itemId=new Array();
 		var userAccount;
-		var nakchal_item=new Array();
+		let nakchal_auc  = new Array();
+		let nakchal_item = new Array();
 		
 		var flag = false; //버튼 여러번 눌렀을 때 테이블 중복 생성 방지
 
 		window.addEventListener("load", async function() {
 			userAccount = await web3.eth.getAccounts();
-			all_itemId= await Auction_sol.methods.getOwnedBy(userAccount[0]).call();
+			all_itemId= await OwnerData_sol.methods.getItemOwnedBy(userAccount[0]).call();
 			console.log('내가 가진 경매물품',all_itemId);
 			//var set_active = await rwSupply_sol.methods.setActiveByItemId(0,1).send({from:userAccount[0],gas:2900000,gasPrice:2900000});
 
 		
 			//내가 생산한 아이템이 아닌 낙찰한 아이템저장.
 			var temp = new Array();
-			
+			nakchal_auc = await OwnerData_sol.methods.getWinningBids(userAccount[0]).call();
+/*
 			 for(var i =0; i<all_itemId.length; i++){
 				
 				temp[i] = await Item_sol.methods.getItemById(all_itemId[i]).call();
@@ -260,7 +267,7 @@
 				}
 			
 			}
-		
+*/
 		});
 
 
@@ -316,7 +323,8 @@
 			var auctionTitle = String(myforma.txt1a.value);
             var startPrice = parseInt(myforma.txt2a.value);
 			var itemId = parseInt(all_itemId[glb_tr_num-1]);
-			var blockDeadLine =Date.parse(myforma.txt3a.value)/1000;
+			var startTime = Date.parse(myforma.txt3a.value)/1000;
+			var blockDeadLine =Date.parse(myforma.txt5a.value)/1000;
 			var route = String(myforma.txt4a.value);
 
 			console.log("등록");
@@ -333,9 +341,15 @@
 			//경매에 아이템 등록
 			try{
 				LoadingWithMask()
-				var create_Auction = await Auction_sol.methods.createAuction(auctionTitle,startPrice,itemId,blockDeadLine,route).send({from:userAccount[0]});
-			}catch(err){
+				var create_Auction = await Auction_sol.methods.createAuction(auctionTitle,startPrice,itemId,startTime,blockDeadLine,route).send({from:userAccount[0]});
+				deckk.style.visibility = "hidden";
+				console.log(glb_tr_num,"아이디");
+				document.getElementsByTagName("tr")[glb_tr_num].getElementsByTagName("button")[0].style.visibility = 'hidden';
+				alert("경매대에 등록되었습니다.");
 
+				location.href = "#mypage_lst";
+			}catch(err){
+				alert("등록에 실패했습니다.");
 			}finally{
 				closeLoadingWithMask()
 			}
@@ -346,13 +360,6 @@
 			//var auction_id = await Auction_sol.methods
        
 			//deckk hidden + button 없애기
-			deckk.style.visibility = "hidden";
-			console.log(glb_tr_num,"아이디");
-			document.getElementsByTagName("tr")[glb_tr_num].getElementsByTagName("button")[0].style.visibility = 'hidden';
-
-			alert("경매대에 등록되었습니다.");
-
-			location.href = "#mypage_lst";
 			
 		}
 		
@@ -420,6 +427,7 @@
 				//1 , 0 순서로 옥션등록, 그럼 옥션아이디는 순서대로 1,0이어야함. but 0,1로 저장되서......
 				auction_itemId = await Auction_sol.methods.getAuctionsOfOwner(userAccount[0]).call();
 			}
+			console.log(item[0]);
 
 			console.log(auction_itemId);
 
@@ -448,7 +456,7 @@
 			let heading_3 = document.createElement('th');
 			heading_3.innerHTML = "무게(kg)";
 			let heading_4 = document.createElement('th');
-			heading_4.innerHTML = "갯수";
+			heading_4.innerHTML = "개수";
 			let heading_5 = document.createElement('th');
 			heading_5.innerHTML = "원산지";
 			let heading_6 = document.createElement('th');
@@ -463,7 +471,7 @@
 			thead.appendChild(row_1);
 			
 
-			var cnt = all_itemId.length; // 사용자가 등록한 item 갯수
+			var cnt = all_itemId.length; // 사용자가 등록한 item 개수
 			
 			//for 문으로 sm 으로부터 받은 값 파싱해서 보여주기
 			for(var i = 0; i < cnt; i++){
@@ -478,7 +486,7 @@
 				let row_2_data_3 = document.createElement('td');
 				row_2_data_3.innerHTML = item[i][1];
 
-				//갯수
+				//개수
 				let row_2_data_4 = document.createElement('td');
 				row_2_data_4.innerHTML = item[i][2] ;
 
@@ -534,13 +542,15 @@
 		try{
 			LoadingWithMask()
 			var a = await Auction_sol.methods.finalizeAuction((a_id)).send({from:userAccount[0]});
+			console.log("경매 끝",a);
+			alert("경매가 마감되었습니다.");
+			window.location.close();
 		}catch(err){
+			alert("경매 마감에 실패했습니다.");
 			return
 		}finally{
 			closeLoadingWithMask()
 		}
-		console.log("경매 끝",a);
-		window.location.reload();
 		
 	 }
 		async function show_nakchal(){
@@ -555,12 +565,14 @@
 			var temp = new Array();
 			var price = new Array();
 			
-
-			for(var i = 0; i<all_itemId.length; i++){
+			console.log(nakchal_auc);
+			for(var i = 0; i<nakchal_auc.length; i++){
 			
 				//내가 낙찰한 item이 있을때만 가격 저장
-				if(nakchal_item[i]!=undefined)
-					price[i] =await Auction_sol.methods.getWinnigBid(nakchal_item[i].itemId).call();
+				// itemId 대신 낙찰받은 auctionId로 탐색
+				price[i] =await Auction_sol.methods.getWinningPrice(nakchal_auc[i]).call();
+				var nakchal_itemId = await Auction_sol.methods.getItemByAuction(nakchal_auc[i]).call();
+				nakchal_item[i] = await Item_sol.methods.getItemById(nakchal_itemId).call();			
 			}
 			//console.log(item);
 
@@ -589,7 +601,7 @@
 			let heading_3 = document.createElement('th');
 			heading_3.innerHTML = "무게(kg)";
 			let heading_4 = document.createElement('th');
-			heading_4.innerHTML = "갯수";
+			heading_4.innerHTML = "개수";
 			let heading_5 = document.createElement('th');
 			heading_5.innerHTML = "원산지";
 			let heading_6 = document.createElement('th');
@@ -604,7 +616,7 @@
 			thead.appendChild(row_1);
 
 			var cnt =nakchal_item.length;
-			//var cnt = all_itemId.length; // 사용자가 등록한 item 갯수
+			//var cnt = all_itemId.length; // 사용자가 등록한 item 개수
 
 			//for 문으로 sm 으로부터 받은 값 파싱해서 보여주기
 			for(var i = 0; i < cnt; i++){
@@ -619,7 +631,7 @@
 				let row_2_data_3 = document.createElement('td');
 				row_2_data_3.innerHTML = nakchal_item[i][1];
 
-				//갯수
+				//개수
 				let row_2_data_4 = document.createElement('td');
 				row_2_data_4.innerHTML = nakchal_item[i][2] ;
 
@@ -677,13 +689,12 @@
 			
 			
 			var path = new Array();
-			for(var i =0; i<all_itemId.length; i++){
+			for(var i =0; i<nakchal_item.length; i++){
 				//내가 낙찰한 item이 있을때만 경로 저장
-				if(nakchal_item[i]!=undefined)
-					path[i] = await rwSupply_sol.methods.getPathMaxByItemId(nakchal_item[i].itemId).call();
+				path[i] = await SupplyManaging_sol.methods.getPathMaxByItemId(nakchal_item[i].itemId).call();
 				//console.log(path[i]);
-
 			}
+			console.log(path[0]);
 		
 			
 			//console.log("사용자의 등록한 item들 보여줄 것");
@@ -767,7 +778,7 @@
 				inner_table.appendChild(inner_thead);
 				inner_table.appendChild(inner_tbody);
 
-				for(var j=0; j<path[i].length / 2; j=j+2){
+				for(var j=0; j < path[i].length; j=j+2){
 					let row_4 = document.createElement('tr');
 					
 					let row_4_data_1 = document.createElement('td');
@@ -797,7 +808,7 @@
 				var idx = i+1;
 
 				var userAccount = await web3.eth.getAccounts();
-				all_itemId = await Auction_sol.methods.getOwnedBy(userAccount[0]).call();
+				all_itemId = await OwnerData_sol.methods.getItemOwnedBy(userAccount[0]).call();
 
 				row_3.innerHTML += 
 				'<td><button id='+idx+' class="btn btn-primary" onclick="create_QR(' + "this.id" + ' )">QR코드</button></td></tr>';

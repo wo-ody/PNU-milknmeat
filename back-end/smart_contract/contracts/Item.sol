@@ -1,32 +1,47 @@
 // SPDX-License-Identifier: MIT
 
+import "./OwnerData.sol";
+import "./SupplyManaging.sol";
+
 pragma solidity >=0.5.16;
 
-import "./Auction.sol";
-
 contract ItemContract{
+    OwnerDataContract ownerDataContract;
+    SupplyManagingContract supplyManagingContract;
+
+
+    //OwnerDataContract ownerData;
+
+    constructor(address _ownerDataContract, address _supplyManagingContract) {
+        ownerDataContract = OwnerDataContract(_ownerDataContract);
+        supplyManagingContract = SupplyManagingContract(_supplyManagingContract);
+
+        //ownerData = OwnerDataContract(ownerDataAddress);
+    }
 
     struct Item{
         string name;
         uint256 weight; 
         uint256 stock;     
-        address payable producer;   
+        address payable producer;
         string origin;  
         uint256 itemId;    
         string[] imgCIDs;
-        address payable owner;
         bool active;
     } 
 
+    function getOwnerDataContract() public view returns(OwnerDataContract odc){
+        return ownerDataContract;
+    }
+
     Item[] public items;
 
+    mapping(address => bool             ) public producerCheck;
 
-    mapping(address => bool     ) public producerCheck;
-    mapping(uint256 => uint256[]) public auctionTracking;
-    
+    event CreateSuccess(address _user, uint256 _itmeId);
 
 
-    function createItem(string memory _itemTitle, uint256 _weight, uint256 _stock, string memory _origin, string[] memory _imgCID) public returns(uint256){
+    function createItem(string memory _itemTitle, uint256 _weight, uint256 _stock, string memory _origin, string[] memory _imgCID) public {
         
         uint256 _itemId = items.length;
 
@@ -39,15 +54,21 @@ contract ItemContract{
         newItem.producer = payable(msg.sender); 
         newItem.origin = _origin;
         newItem.itemId = _itemId;
-        newItem.owner = payable(msg.sender);
         newItem.imgCIDs = _imgCID;
 
         items.push(newItem);
- 
-        emit CreateItemEvent(_itemTitle, _weight, _stock, _origin);
-        return _itemId;
+
+        ownerDataContract.updateItemOwner(msg.sender, _itemId);
+        supplyManagingContract.constructorSupplyData(_itemId);
+        emit CreateSuccess(msg.sender, _itemId);
+        //ownerData.setOwnerByItemId(msg.sender, _itemId);
+        //ownerData.pushOwnedBy(msg.sender, _itemId);
     }
 
+    function getNewItemId() public view returns(uint256){
+        return items.length;
+    }
+    
     function getStockById(uint256 _itemId) public view returns(uint256){
         return items[_itemId].stock;
     }
@@ -81,7 +102,6 @@ contract ItemContract{
         return msg.sender != items[_itemId].producer;
     }
 
-    
     function viewItemById(uint _itemId) public view returns(
         string memory name,
         uint256 weight,
@@ -107,19 +127,15 @@ contract ItemContract{
         return items[_itemId];
     }
 
-
     function isProducer() public view returns(bool){
         return producerCheck[msg.sender];
-        }
+    }
         
 
-    function setOwnerToProducer(bool flag) public returns(bool){
+    function setUserToProducer(bool flag) public returns(bool){
         producerCheck[msg.sender] = flag;
-        emit SetOwnerToProducerEvent(flag);
         return producerCheck[msg.sender];
     }
-    
-
 
     event SetOwnerToProducerEvent(bool flag);
     event CreateItemEvent(string _itemTitle, uint256 _weight, uint256 _stock, string _origin);

@@ -2,21 +2,24 @@
 var Auction_sol;
 var Item_sol;
 var Supply_sol; 
-var rwSupply_sol;
+var SupplyManaging_sol;
+var OwnerData_sol;
 // 페이지 로드될때마다, 컨트랙트랑 연동시켜주기
 
 async function startApp() {
-	var AuctionAddress = "0xf476eF4b1FFF09De9F626fA54Dbe199cDF58EA73";
-	var ItemAddress = "0xe1E4E5f6f3F7E0967adC425f1cB6790e21E1C1d9";
-	var SupplyAddress = "0x6f6b26199d1B24A273F0bBb9827cfa0d4CC5F1D0";
-	var rwSupplyAddress;
-
+	var SupplyAddress = "0x6E236eA1Deda8C2bCD72b82b56E3DF793E014abc";
+	var SupplyManagingAddress = "0x4e0437AFA03248e8c9945cF42549097C64443e25";
+	var OwnerDataAddress = "0x1480A624890BA3621Db68EA64D63425b87A1948c";
+	var ItemAddress = "0x83A4944654834EE61a07fC83ccB2678F82329361";
+	var AuctionAddress = "0x9aad4966d103Ebd1850022ebBDe92A3712C34703";
+	
+	OwnerData_sol = await new web3.eth.Contract(OwnerABI, OwnerDataAddress);
 	Auction_sol = await new web3.eth.Contract(AuctionABI, AuctionAddress);
+	console.log("Auction Create");
 	Supply_sol = await new web3.eth.Contract(SupplyABI, SupplyAddress);
 	Item_sol = await new web3.eth.Contract(ItemABI, ItemAddress);
-	
-	rwSupplyAddress = await Auction_sol.methods.getRwSupplyData().call();
-	rwSupply_sol = await new web3.eth.Contract(rwSupplyABI, rwSupplyAddress);
+	SupplyManaging_sol = await new web3.eth.Contract(SupplyManagingABI, SupplyManagingAddress);
+	console.log("SupplyManaging create")
 
 }
 

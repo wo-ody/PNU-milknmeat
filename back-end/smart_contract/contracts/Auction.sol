@@ -2,19 +2,26 @@
 
 pragma solidity >=0.5.16;
 
-import "./Supply.sol";
+import "./OwnerData.sol";
+import "./SupplyManaging.sol";
 
-contract AuctionContract {
+contract AuctionContract{
 
-    rwSupplyData rwData = new rwSupplyData();
+    OwnerDataContract ownerDataContract;
+
+    SupplyManagingContract supplyManagingContract;
+
+    constructor(address _ownerDataContract, address _supplyManagingContract) {
+        ownerDataContract = OwnerDataContract(_ownerDataContract);
+        supplyManagingContract = SupplyManagingContract(_supplyManagingContract);
+    }
 
     Auction[] public auctions;
 
-    mapping(uint256 => Bid[]) public auctionBids;
+    mapping(uint256 => Bid[] ) public auctionBids;
     mapping(address => uint[]) public auctionOwner;
+    mapping(uint256 => bool  ) public itemActive;
             
-    mapping(address => uint256[]) public ownedBy;
-
     struct Bid{
         address payable from;
         uint256 amount;
@@ -23,9 +30,9 @@ contract AuctionContract {
 
     struct Auction{
         string name;
-        uint blockDeadline;
+        uint256 startTime;
+        uint256 blockDeadline;
         uint256 startPrice;
-        address payable owner;
         bool active;
         bool finalized;
         uint256 itemId;
@@ -33,8 +40,18 @@ contract AuctionContract {
         string shippingTo;  
     }
 
+    event AlreadyActive(address _user, uint256 _itemId);
+    event EarlyToFinalize(address _user, uint256 timeStamp, uint256  blockDeadline);
+    event CancelAuction(address _user, uint256 _auctionId);
+    event ItemAlreadyActive(address _user, uint256 _itemId);
+    event DeadlineExceeded(address _user, uint256 _auctionId, uint256 _timestamp, uint256 _deadline);
+    event AuctionFinalized(address _user, uint256 _auctionId);
+    event sendFailed(address _user, uint256 _amount, uint256 _auctionId);
+
+
     modifier isOwnerAuc(uint _auctionId) {
-        require(auctions[_auctionId].owner == msg.sender);
+        address owner = ownerDataContract.getOwnerByAucId(_auctionId);
+        require(owner == msg.sender);
         _;
     }
 
@@ -71,19 +88,9 @@ contract AuctionContract {
         return auctionOwner[_owner].length;
     }
 
-   
-    function getOwnedBy(address _user) public view returns(uint256[] memory){
-        uint256[] memory _ownedBy = ownedBy[_user];
-        return _ownedBy;
-    }
-
-    function pushOwnedBy(uint256 _itemId) public returns(uint256){
-        ownedBy[msg.sender].push(_itemId);
-        return ownedBy[msg.sender].length;
-    }
-
     function getAuctionById(uint _auctionId) public view returns(
         string memory name,
+        uint256 startTime,
         uint256 blockDeadline,
         uint256 startPrice,
         address payable owner,
@@ -94,11 +101,13 @@ contract AuctionContract {
         string memory shippingTo
     ){
         Auction memory auc = auctions[_auctionId];
+        address _owner = ownerDataContract.getOwnerByAucId(_auctionId);
         return (
             auc.name,
+            auc.startTime,
             auc.blockDeadline,
             auc.startPrice,
-            auc.owner,
+            payable(_owner),
             auc.active,
             auc.finalized,
             auc.itemId,
@@ -107,17 +116,27 @@ contract AuctionContract {
         );
     }
 
+    function getAuctionNameByAuctionId(uint256 _auctionId) public view returns(string memory){
+        return auctions[_auctionId].name;
+    }
+
     function createAuction(string memory _auctionTitle, uint256 _startPrice, uint256 _itemId, 
-        uint _blockDeadline, string memory _shippingFrom) public {
+       uint256 _startTime,  uint256 _blockDeadline, string memory _shippingFrom) public {
+
         
         uint256 auctionId = auctions.length;
 
         Auction memory newAuction;
 
+        if(itemActive[_itemId] == true){
+            emit AlreadyActive(msg.sender, _itemId);
+            revert();
+        }
+
         newAuction.name = _auctionTitle;
+        newAuction.startTime = _startTime;
         newAuction.blockDeadline = _blockDeadline;
         newAuction.startPrice = _startPrice;
-        newAuction.owner = payable(msg.sender);
         newAuction.active = true;
         newAuction.finalized = false;
         newAuction.itemId = _itemId;
@@ -125,19 +144,26 @@ contract AuctionContract {
         newAuction.shippingTo = "none";
 
         auctions.push(newAuction);
-        auctionOwner[msg.sender].push(auctionId);
-        rwData.setActiveByItemId(_itemId, true);
-
+        ownerDataContract.updateAuctionOwner(msg.sender, auctionId);
+        itemActive[_itemId] = true;
+        //ownerDataContract.updateItemOwner(msg.sender, _itemId);
+        //ownerData.pushOwnedBy(msg.sender, _itemId);
     }
+
+    //function restartAuction(uint256 _auctionId, )
 
     function cancelAuction(uint _auctionId) public isOwnerAuc(_auctionId){
         uint bidsLength = auctionBids[_auctionId].length;
 
         if(bidsLength > 0){
             Bid memory lastBid = auctionBids[_auctionId][bidsLength -1];
-            require(lastBid.from.send(lastBid.amount), "failed to refund.");
-
+            if(!lastBid.from.send(lastBid.amount)){
+                emit sendFailed(msg.sender, lastBid.amount, _auctionId);
+                revert();
+            }
         }
+
+        emit CancelAuction(msg.sender, _auctionId);
     }
 
     function finalizeAuction(uint256 _auctionId) public returns(uint256){
@@ -145,9 +171,11 @@ contract AuctionContract {
         uint256 _itemId = myAuction.itemId;
         uint256 bidsLength = auctionBids[_auctionId].length;
         uint256 timeStamp = block.timestamp;
+        address payable aucOwner = ownerDataContract.getOwnerByAucId(_auctionId);
         
 
         if(timeStamp < myAuction.blockDeadline){
+            emit EarlyToFinalize(msg.sender, timeStamp, myAuction.blockDeadline);
             revert();
         }
         
@@ -156,59 +184,47 @@ contract AuctionContract {
         }else{
 
             Bid memory lastBid = auctionBids[_auctionId][bidsLength - 1];
-            
 
-            require(myAuction.owner.send(lastBid.amount), "Failed to send either." );
-            handover(_auctionId, lastBid.from);
-            rwData.setAddrToShippingByItemId(_itemId, myAuction.owner, lastBid.from, myAuction.shippingFrom, lastBid.shippingTo);
-            myAuction.shippingTo = lastBid.shippingTo;
-            
+            if(!aucOwner.send(lastBid.amount)){
+                emit sendFailed(msg.sender, lastBid.amount, _auctionId);
+                revert();
+            }
+            else{
+                ownerDataContract.handoverOwnerData(aucOwner, lastBid.from, _itemId, _auctionId);
+                supplyManagingContract.setAddrToShippingByItemId(_itemId, aucOwner, lastBid.from, myAuction.shippingFrom, lastBid.shippingTo);
+                myAuction.shippingTo = lastBid.shippingTo;
+                auctions[_auctionId].finalized = true;
+                emit AuctionFinalized(msg.sender, _auctionId);
+            }
         }
 
         auctions[_auctionId].active = false;
-        auctions[_auctionId].finalized = true;
-
-        rwData.setActiveByItemId(_itemId, false);
-        
+        itemActive[_itemId] = false;        
         return 0;
     }
 
 
-    function handover(uint256 _auctionId, address _to) public {
-        Auction memory myAuction = auctions[_auctionId];
-        address _owner = myAuction.owner; 
-        uint256 _itemId = myAuction.itemId;
-        uint256[] memory ownedByFrom = ownedBy[_owner];
-        uint256 len = ownedByFrom.length;
-
-        ownedBy[_owner][_itemId] = ownedByFrom[len-1];
-        ownedBy[_owner].pop();
-
-        ownedBy[_to].push(_itemId);
-    }
-
-    function sendNow(address payable _from, uint256 _amount, uint256 _auctionId) public payable returns(bool){
-        bool sent = _from.send(_amount); 
-        require(sent,"Failed to send either.");
-        
-        auctions[_auctionId].active = false;
-        auctions[_auctionId].finalized = true;
-
-        return sent;
-    }
-
-
     function bidOnAuction(uint _auctionId, string memory _to) external payable {
-        uint256 ethAmountSent = msg.value;
+        uint256 timestamp = block.timestamp;
 
+        uint256 ethAmountSent = msg.value;
+        address aucOwner = ownerDataContract.getOwnerByAucId(_auctionId);
         Auction memory myAuction = auctions[_auctionId];
-        require(myAuction.owner != msg.sender, "Owner can't participate auction.");
-        require(block.timestamp <= myAuction.blockDeadline, "TIME OVER.");
+        uint256 startTime = myAuction.startTime;
+        uint256 deadline = myAuction.blockDeadline;
+
+        if(aucOwner == msg.sender){
+            revert();
+        }
+
+        if( (timestamp > deadline) || (timestamp < startTime) ){
+            emit DeadlineExceeded(msg.sender, _auctionId, timestamp, deadline);
+            revert();
+        }
         
         uint256 bidsLength = auctionBids[_auctionId].length;
         uint256 tempAmount = myAuction.startPrice;
         Bid memory lastBid;
-        
         
         if(ethAmountSent < tempAmount){
             revert();
@@ -232,32 +248,17 @@ contract AuctionContract {
         auctionBids[_auctionId].push(newBid);
     }
 
-    function getActiveByItemId(uint256 _itemId) public view returns(bool){
-        return rwData.getActiveByItemId(_itemId);
-    }
-
-    function createSupplyData(uint256 _itemId) public{
-        rwData.constructorSupplyData(_itemId);
-    }
-
-    function setActiveByItemId(uint256 _itemId, bool _active) public returns(bool){
-        rwData.setActiveByItemId(_itemId, _active);
-        return rwData.getActiveByItemId(_itemId);
-    }
-
     function getActiveByAuctionId(uint256 _auctionId) public view returns(bool){
         return auctions[_auctionId].active;
     }
 
-    //추가본_08_01
-
-    function getRwSupplyData() public view returns(rwSupplyData){
-        return rwData;
+    function getActiveByItemId(uint256 _itemId) public view returns(bool){
+        return itemActive[_itemId];
     }
 
-    function getWinnigBid(uint256 auctionId) public view returns(uint256){
-        uint256 len = auctionBids[auctionId].length;
-        return auctionBids[auctionId][len-1].amount;
+    function getWinningPrice(uint256 _auctionId) public view returns(uint256){
+        uint256 len = auctionBids[_auctionId].length;
+        return auctionBids[_auctionId][len-1].amount;
     } // 옥션의 최종 낙찰가를 리턴
 
     //function getPathLenByItemIdAuc(uint256 _itemId) public view returns(uint256){}
@@ -266,37 +267,3 @@ contract AuctionContract {
 
 }
 
-contract rwSupplyData {
-
-    mapping(uint256 => SupplyContract) public supplyData;
-
-    function constructorSupplyData(uint256 _itemId) public{
-        supplyData[_itemId] = new SupplyContract();
-    }
-
-    function getPathMaxByItemId(uint256 _itemId) public view returns(string[] memory){
-        return supplyData[_itemId].getPathMax();
-    }
-
-    function getPathLenByItemId(uint256 _itemId) public view returns(uint256){
-        return supplyData[_itemId].getPathLenByAddr(msg.sender);
-    }
-
-    function getShippingAddrByItemId(uint256 _itemId, uint256 _idx) public view returns(string memory){
-        return supplyData[_itemId].getShippingAddrByIdx(_idx);
-    }
-
-    function setAddrToShippingByItemId(uint256 _itemId, address _from, address _to, 
-        string memory _fromStr, string memory _toStr) public{
-        supplyData[_itemId].setAddrToShippingAddr(_from, _to, _fromStr, _toStr);
-    }
-    
-    function getActiveByItemId(uint256 _itemId) public view returns(bool){
-        return supplyData[_itemId].getActive();
-    }
-
-    function setActiveByItemId(uint256 _itemId, bool _active) public returns(bool){
-        return supplyData[_itemId].setActive(_active);
-    }
-
-}
