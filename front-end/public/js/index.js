@@ -7,11 +7,11 @@ var OwnerData_sol;
 // 페이지 로드될때마다, 컨트랙트랑 연동시켜주기
 
 async function startApp() {
-	var SupplyAddress = "0x6E236eA1Deda8C2bCD72b82b56E3DF793E014abc";
-	var SupplyManagingAddress = "0x4e0437AFA03248e8c9945cF42549097C64443e25";
-	var OwnerDataAddress = "0x1480A624890BA3621Db68EA64D63425b87A1948c";
-	var ItemAddress = "0x83A4944654834EE61a07fC83ccB2678F82329361";
-	var AuctionAddress = "0x9aad4966d103Ebd1850022ebBDe92A3712C34703";
+	var SupplyAddress = "0x2b356fEDAcf0Fe076202bB52d9123479654ec37D";
+	var SupplyManagingAddress = "0x25cAB1e82e3eEEce190384B0C698B77B3232B77f";
+	var OwnerDataAddress = "0x3d7BB93886f0ac2BF1985A84549014cad7fBA78b";
+	var ItemAddress = "0x74758d5971119B90f2182C49F4AB9c98B85A9c1A";
+	var AuctionAddress = "0x9bc17bbb9ef4693910C45E5A0C6F58bD72963C87";
 	
 	OwnerData_sol = await new web3.eth.Contract(OwnerABI, OwnerDataAddress);
 	Auction_sol = await new web3.eth.Contract(AuctionABI, AuctionAddress);
