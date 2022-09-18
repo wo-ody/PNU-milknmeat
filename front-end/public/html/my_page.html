@@ -26,6 +26,7 @@
 	<link rel="stylesheet" href="../css/tiny-slider.css">
 	<link rel="stylesheet" href="../css/aos.css">
 	<link rel="stylesheet" href="../css/style.css">
+	<link rel="stylesheet" href="../css/modal_popup.css">
 
 	<title>수산물 경매 사이트</title>
 </head>
@@ -215,6 +216,26 @@
     	</div>
     </div>
 
+	<div id="modal" class="modal-overlay" style="display: none;">
+        <div class="modal-window">
+            <div class="title">
+                <h2>배송 정보 확인</h2>
+            </div>
+            <div class="close-area">X</div>
+            <div id="modal_content" class="content">
+				<a id="modal_table"><h5>경로</h5></a>
+				<hr>
+				<h5>온습도</h5>
+                <button id = "btn1">연결</button>
+                <button id = "btn2" >측정</button>
+            </div>
+        </div>
+    </div>
+	<script language="javascript" type="text/javascript" src="../libraries/p5.min.js"></script>
+    <script language="javascript" type="text/javascript" src="../libraries/p5.ble.js"></script>
+    <script language="javascript" type="text/javascript" src="../js/bluetooth.js"></script>
+        
+
 	<script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
 	<script type="text/javascript" src="../jquery.min.js"></script>
 	<script type="text/javascript" src="../qrcode.js"></script>
@@ -244,6 +265,7 @@
 		var flag = false; //버튼 여러번 눌렀을 때 테이블 중복 생성 방지
 
 		window.addEventListener("load", async function() {
+			blueTooth = new p5ble();
 			userAccount = await web3.eth.getAccounts();
 			all_itemId= await OwnerData_sol.methods.getItemOwnedBy(userAccount[0]).call();
 			console.log('내가 가진 경매물품',all_itemId);
@@ -606,6 +628,8 @@
 			heading_5.innerHTML = "원산지";
 			let heading_6 = document.createElement('th');
 			heading_6.innerHTML = "낙찰된 가격";
+			let heading_7 = document.createElement('th');
+			heading_7.innerHTML = "배송정보";
 
 			row_1.appendChild(heading_1);
 			row_1.appendChild(heading_2);
@@ -613,6 +637,7 @@
 			row_1.appendChild(heading_4);
 			row_1.appendChild(heading_5);
 			row_1.appendChild(heading_6);
+			row_1.appendChild(heading_7);
 			thead.appendChild(row_1);
 
 			var cnt =nakchal_item.length;
@@ -643,12 +668,17 @@
 				let row_2_data_6 = document.createElement('td');
 				row_2_data_6.innerHTML = price[i];
 
+				//배송정보 버튼
+				let row_2_data_7 = document.createElement('td');
+				row_2_data_7.innerHTML = '<button class="btn btn-primary" style="padding:10px;" onclick="show_delivery_info()" >보기</button>';
+
 				row_2.appendChild(row_2_data_1);
 				row_2.appendChild(row_2_data_2);
 				row_2.appendChild(row_2_data_3);
 				row_2.appendChild(row_2_data_4);
 				row_2.appendChild(row_2_data_5);
 				row_2.appendChild(row_2_data_6);
+				row_2.appendChild(row_2_data_7);
 				tbody.appendChild(row_2);
 			}
 
@@ -682,6 +712,7 @@
 			//location.href="route.html?a="+item_data[0]+"&b="+item_data[1];
 			
 		}
+
 		async function show_route(){
 
 			delete_table(flag);
@@ -816,9 +847,131 @@
 				
 			}
 			flag = true;
-
-		
 	}
+
+	//0918 서현 
+
+	var modal_flag = false;
+
+	function show_delivery_info(){
+		modal_flag = true;
+		// 경로 table 생성
+		Modal_show_route(); 
+
+		var maskHeight = $(document).height();
+        var maskWidth = window.document.body.clientWidth;
+		$('#modal').css({'width' : maskWidth, 'height': maskHeight});
+		const modal = document.getElementById("modal");
+    	modal.style.display = "flex";
+	}
+
+	const closeBtn = modal.querySelector(".close-area")
+	closeBtn.addEventListener("click", e => {
+    modal.style.display = "none"
+	})
+	let blueTooth;
+	let blueToothCharacteristic;//this is a blu
+
+	const btn1 = document.getElementById('btn1');
+	const btn2 = document.getElementById('btn2');
+
+	btn1.addEventListener('click',function(){
+		connectToBle();
+	})
+
+	btn2.addEventListener('click',function(){
+		MeasureData();
+	})
+
+	async function Modal_show_route(){
+		var path = new Array();
+		for(var i =0; i<nakchal_item.length; i++){
+			//내가 낙찰한 item이 있을때만 경로 저장
+			path[i] = await SupplyManaging_sol.methods.getPathMaxByItemId(nakchal_item[i].itemId).call();
+			//console.log(path[i]);
+		}
+		console.log(path[0]);
+
+		if(modal_flag){
+			let mt = document.getElementById("modal_table");
+			while (mt.hasChildNodes()) {  
+				mt.removeChild(mt.firstChild);
+			}
+			modal_flag = false;
+		}
+
+
+		//console.log("사용자의 등록한 item들 보여줄 것");
+		let table = document.createElement('table');
+		let thead = document.createElement('thead');
+		let tbody = document.createElement('tbody');
+
+		table.appendChild(thead);
+		table.appendChild(tbody);
+
+		document.getElementById("modal_table").appendChild(table);
+
+		let row_2 = document.createElement('tr');
+
+		let heading_3 = document.createElement('th');
+		heading_3.setAttribute('colspan','2')
+		heading_3.innerHTML = "경로";
+		
+
+		let heading_5 = document.createElement('th');
+		heading_5.innerHTML = "from";
+		let heading_6 = document.createElement('th');
+		heading_6.innerHTML = "to";
+
+		row_2.appendChild(heading_5);
+		row_2.appendChild(heading_6);
+
+		thead.appendChild(row_2)
+
+		var cnt = nakchal_item.length;
+
+//for 문으로 sm 으로부터 받은 값 파싱해서 보여주기
+		for(var i = 0; i < cnt; i++){
+			let row_3 = document.createElement('tr');
+			let row_3_data_1 = document.createElement('td');
+			row_3_data_1.innerHTML = i+1;
+			console.log(nakchal_item[i]);
+	
+			//경로 td
+			let row_3_data_3 = document.createElement('td');
+			row_3_data_3.setAttribute('colspan','2')
+
+			let inner_table = document.createElement('table');
+			let inner_thead = document.createElement('thead');
+			let inner_tbody = document.createElement('tbody');
+
+			inner_table.appendChild(inner_thead);
+			inner_table.appendChild(inner_tbody);
+
+			for(var j=0; j < path[i].length; j=j+2){
+				let row_4 = document.createElement('tr');
+				
+				let row_4_data_1 = document.createElement('td');
+				row_4_data_1.innerHTML = path[i][j];
+				console.log("Modal data ",path[i][j]);
+				
+				let row_4_data_2 = document.createElement('td');
+				row_4_data_2.innerHTML = path[i][j+1];
+				console.log("Modal data ",path[i][j+1]);
+				
+				row_4.appendChild(row_4_data_1);
+				row_4.appendChild(row_4_data_2);
+				inner_tbody.append(row_4);
+				
+			}
+
+			row_3_data_3.appendChild(inner_table);
+			row_3.appendChild(row_3_data_3);
+			tbody.appendChild(row_3);
+		}	
+	}
+	
+
 	
     </script>
 
