@@ -120,12 +120,14 @@
 
 				</div>
 				<!-- __ end -->
+				
 				<div class="col-lg-1 mb-5 mb-lg-0 order-lg-2" id="qrcode">
-
+				
 				</div>
+				
 				<div class="col-lg-4">
 					<div class="d-flex feature-h">
-						<span class="wrap-icon me-3" onclick="a()">
+						<span class="wrap-icon me-3" onclick="show_receipt()">
 							<span class="icon-home2"></span>
 						</span>
 	
@@ -239,7 +241,7 @@
 	<script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
 	<script type="text/javascript" src="../jquery.min.js"></script>
 	<script type="text/javascript" src="../qrcode.js"></script>
-	<script type="text/javascript" src="jquery.qrcode.min.js"></script>
+	<!-- <script type="text/javascript" src="jquery.qrcode.min.js"></script> -->
     <script src="../auction_abi.js"></script>
     <script src="../Item_abi.js"></script>
     <script src="../Supply_abi.js"></script>
@@ -418,21 +420,21 @@
 
 		}
 		
-		function a(){
-			try{
-			LoadingWithMask()
-			show_receipt()
-			}catch(err){
+		// function a(){
+		// 	try{
+		// 	LoadingWithMask()
+		// 	show_receipt()
+		// 	}catch(err){
 
-			}finally{
+		// 	}finally{
 
-			setTimeout(function() {
-            console.log('Hello World!');
-            closeLoadingWithMask()
-            }, 2000);
-		}
+		// 	setTimeout(function() {
+        //     console.log('Hello World!');
+        //     closeLoadingWithMask()
+        //     }, 2000);
+		// }
 
-		}
+		// }
         async function show_receipt(){
 			
 			//flag 가 true면 보여지는 table 삭제해야함
@@ -587,6 +589,7 @@
 			var temp = new Array();
 			var price = new Array();
 			
+			
 			console.log(nakchal_auc);
 			for(var i = 0; i<nakchal_auc.length; i++){
 			
@@ -685,33 +688,49 @@
 			flag = true;
 
 			}
-
-		var qrcode = new QRCode(document.getElementById("qrcode"),{
-			width:100,
-			height:100
-		});
-
-		function makeCode(data)
-		{
-				qrcode.makeCode(data);
-		}		
-
-		async function create_QR(id){
-			console.log('id ',id);
-			//var userAccount = await web3.eth.getAccounts();
-			//console.log(all_itemId[id-1]);
-			//var item_data = await Item_sol.methods.getItemById(nakchal_item[id-1].itemId).call();
-			var data=''
-			for(var i=0; i<3; i++)
-				data = data +' ' + nakchal_item[id-1][i];
-			
-
-			console.log(data);
-			var url="localhost:3000/html/route.html?a="+nakchal_item[id-1][0]+"&b="+nakchal_item[id-1][1]
-			makeCode(url);
-			//location.href="route.html?a="+item_data[0]+"&b="+item_data[1];
-			
+		function create_new(id){
+			location.href="qr_page.html?a="+id
 		}
+		// var qrcode = new QRCode(document.getElementById("qrcode"),{
+        //     width:100,
+        //     height:100
+        // });
+
+        // function makeCode(data)
+        // {
+        //         qrcode.makeCode(data);
+
+				
+		// }
+
+        // async function create_QR(id){
+        //     console.log('id ',id);
+        //     //var userAccount = await web3.eth.getAccounts();
+        //     //console.log(all_itemId[id-1]);
+        //     //var path = await Item_sol.methods.getItemById(id).call();
+        //     path = await SupplyManaging_sol.methods.getPathMaxByItemId(id-1).call();
+        //     var data=''
+        //     //for(var i=0; i<3; i++)
+        //         //data = data +' ' + nakchal_item[id-1][i];
+            
+
+        //     console.log(path);
+        //     var url="localhost:3000/html/route.html?a="+path
+        //     makeCode(url);
+        //     //location.href="route.html?a="+path
+		
+        // }
+
+		// function printDiv(divName) {
+		// 	var printContents = document.getElementById(divName).innerHTML;
+		// 	var originalContents = document.body.innerHTML;
+
+		// 	document.body.innerHTML = printContents;
+
+		// 	window.print();
+
+		// 	document.body.innerHTML = originalContents;
+		// }
 
 		async function show_route(){
 
@@ -720,8 +739,10 @@
 			
 			
 			var path = new Array();
-			for(var i =0; i<nakchal_item.length; i++){
+			for(var i =0; i<nakchal_auc.length; i++){
 				//내가 낙찰한 item이 있을때만 경로 저장
+				var nakchal_itemId = await Auction_sol.methods.getItemByAuction(nakchal_auc[i]).call();
+				nakchal_item[i] = await Item_sol.methods.getItemById(nakchal_itemId).call();	
 				path[i] = await SupplyManaging_sol.methods.getPathMaxByItemId(nakchal_item[i].itemId).call();
 				//console.log(path[i]);
 			}
@@ -842,9 +863,11 @@
 				all_itemId = await OwnerData_sol.methods.getItemOwnedBy(userAccount[0]).call();
 
 				row_3.innerHTML += 
-				'<td><button id='+idx+' class="btn btn-primary" onclick="create_QR(' + "this.id" + ' )">QR코드</button></td></tr>';
+				'<td><button id='+idx+' class="btn btn-primary" onclick="create_new(' + "this.id" + ' )">QR코드</button></td></tr>';
+				//'<td><button id='+idx+' class="btn btn-primary" onclick="create_new(' + "this.id" + ' )">QR코드</button></td></tr>';
 				tbody.appendChild(row_3);
 				
+			
 			}
 			flag = true;
 	}
@@ -864,6 +887,7 @@
 		const modal = document.getElementById("modal");
     	modal.style.display = "flex";
 	}
+	
 
 	const closeBtn = modal.querySelector(".close-area")
 	closeBtn.addEventListener("click", e => {

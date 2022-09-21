@@ -29,6 +29,8 @@
         <link rel="stylesheet" href="../css/aos.css">
         <link rel="stylesheet" href="../css/style.css">
     
+        <script type="text/javascript" src="../qrcode.js"></script>
+
         <title>수산물 경로 확인</title>
     </head>
     <style>
@@ -70,76 +72,65 @@
         color: #ff5353;
         margin-left: 5px;
     }
+    
+    div{
+        margin:30px;
+    }
+    input{
+        margin-left: 30px;
+    }
 </style>
 <body>
-    <h1>경로 확인</h1>
-	<div id="show_table"></div>
-	
-<!-- 
-	<script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <h1>경로 확인 QR코드</h1>
+	<div id="qrcode"></div>
+    <input type="button" value="인쇄하기" id="print" onclick="window.print()"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
     <script src="../auction_abi.js"></script>
     <script src="../Item_abi.js"></script>
     <script src="../Supply_abi.js"></script>
+	<script src="../owner_abi.js"></script>
+	<script src="../SupplyManaging_abi.js"></script>
 
 	<script src="../js/index.js"></script>
-    <script src="../js/bootstrap.bundle.min.js"></script>
-    <script src="../js/tiny-slider.js"></script>
-    <script src="../js/aos.js"></script>
-    <script src="../js/navbar.js"></script>
-    <script src="../js/counter.js"></script>
-    <script src="../js/custom.js"></script> -->
 
     <script>
-		window.addEventListener("load", async function() {
+      
+        window.addEventListener("load", async function() {
         
         var query = document.location.search;
         var param = new URLSearchParams(query);
-        data = param.get('a'); //item_id
-		var d = data.split(',');
-        console.log(d);
+        id = param.get('a'); //item_id
+        create_QR(id);
+        });
 
-        let table = document.createElement('table');
-        let thead = document.createElement('thead');
-        let tbody = document.createElement('tbody');
-		
-        table.appendChild(thead);
-		table.appendChild(tbody);
-		
-        document.getElementById("show_table").appendChild(table);
+        var qrcode = new QRCode(document.getElementById("qrcode"),{
+            width:100,
+            height:100
+        });
 
-        let row_1 = document.createElement('tr');
-        let heading_1 = document.createElement('th');
-        heading_1.innerHTML = "from";
-        let heading_2 = document.createElement('th');
-        heading_2.innerHTML = "to";
+        function makeCode(data)
+        {
+                qrcode.makeCode(data);
+        }		
 
-        row_1.appendChild(heading_1);
-        row_1.appendChild(heading_2);
-        thead.appendChild(row_1);
-
-        //var cnt = data.length/2 + 1 
-		//경매목록에서 넘겨받은 id 저장
-         
-        for(var i=0; i<d.length; i+=2){
-            // document.getElementById("data").innerHTML += d[i]+' '
-            let row_2 = document.createElement('tr');
-            let row_2_data_1 = document.createElement('td');
-            row_2_data_1.innerHTML = d[i];
-            console.log(d[i],d[i+1]);
-
-            let row_2_data_2 = document.createElement('td');
-            row_2_data_2.innerHTML = d[i+1];
+        async function create_QR(id){
+            console.log('id ',id);
+            //var userAccount = await web3.eth.getAccounts();
+            //console.log(all_itemId[id-1]);
+            //var path = await Item_sol.methods.getItemById(id).call();
+            path = await SupplyManaging_sol.methods.getPathMaxByItemId(id-1).call();
+            var data=''
+            //for(var i=0; i<3; i++)
+                //data = data +' ' + nakchal_item[id-1][i];
             
-            row_2.appendChild(row_2_data_1);
-            row_2.appendChild(row_2_data_2);
-            tbody.appendChild(row_2);
-        }    
-		
-	
-     })
 
-	
-
-    </script>
-  </body>
-  </html>
+            console.log(path);
+            var url="localhost:3000/html/route.html?a="+path
+            makeCode(url);
+            //location.href="route.html?a="+path
+            
+        }
+</script>
+</body>
+</html>
