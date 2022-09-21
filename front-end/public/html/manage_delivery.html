@@ -1,0 +1,282 @@
+<!-- /*
+* Template Name: Property
+* Template Author: Untree.co
+* Template URI: https://untree.co/
+* License: https://creativecommons.org/licenses/by/3.0/
+*/ -->
+<!doctype html>
+<html lang="en">
+<head>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <meta name="author" content="Untree.co">
+   <link rel="shortcut icon" href="../favicon.png">
+
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+
+   <meta name="description" content="" />
+   <meta name="keywords" content="bootstrap, bootstrap5" />
+   
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+
+   <link rel="stylesheet" href="../fonts/icomoon/style.css">
+   <link rel="stylesheet" href="../fonts/flaticon/font/flaticon.css">
+
+   <link rel="stylesheet" href="../css/tiny-slider.css">
+   <link rel="stylesheet" href="../css/aos.css">
+   <link rel="stylesheet" href="../css/style.css">
+
+   <title>수산물 경매 사이트</title>
+</head>
+<style>
+   
+    .file-list {
+        height: 200px;
+        overflow: auto;
+        border: 1px solid #989898;
+        padding: 10px;
+        border-radius: 0.25rem;
+        color: #212529;
+    }
+    .file-list .filebox p {
+        font-size: 14px;
+        margin-top: 10px;
+        display: inline-block;
+    }
+    .file-list .filebox .delete i{
+        color: #ff5353;
+        margin-left: 5px;
+    }
+</style>
+<body>
+
+   <div class="site-mobile-menu site-navbar-target">
+      <div class="site-mobile-menu-header">
+         <div class="site-mobile-menu-close">
+            <span class="icofont-close js-menu-toggle"></span>
+         </div>
+      </div>
+      <div class="site-mobile-menu-body"></div>
+   </div>
+
+   <nav class="site-nav">
+      <div class="container">
+         <div class="menu-bg-wrap">
+            <div class="site-navigation">
+               <a href="../index.html" class="logo m-0 float-start">수산물 경매 사이트</a>
+
+               <ul class="js-clone-nav d-none d-lg-inline-block text-start site-menu float-end">
+                  <li><a href="../index.html">홈</a></li>
+                  <li class="has-children">
+                     <a href="properties.html">경매 물품</a>
+                     <ul class="dropdown">
+                        <li><a href="#">Buy Property</a></li>
+                        <li><a href="#">Sell Property</a></li>
+                        <li class="has-children">
+                           <a href="#">Dropdown</a>
+                           <ul class="dropdown">
+                              <li><a href="#">Sub Menu One</a></li>
+                              <li><a href="#">Sub Menu Two</a></li>
+                              <li><a href="#">Sub Menu Three</a></li>
+                           </ul>
+                        </li>
+                     </ul>
+                  </li>
+                        <li><a href="my_page.html">My Page</a></li>
+                        <li id="for_manager" style="display:inline-block;"><a href="manage_delivery.html">배송 정보 관리</a></li>
+                  
+                  <!-- <li><a href="services.html">Services</a></li>
+                  <li><a href="about.html">About</a></li>
+                  <li class="active"><a href="contact.html">Contact Us</a></li> -->
+               </ul>
+            </div>
+         </div>
+      </div>
+   </nav>
+
+   <div class="hero page-inner overlay" style="background-image: url('../images/hero_bg_1.jpg');">
+
+      <div class="container">
+         <div class="row justify-content-center align-items-center">
+            <div class="col-lg-9 text-center mt-5">
+               <h1 class="heading" data-aos="fade-up">배송 정보 및 온습도 관리할 수 있습니다.</h1>
+            </div>
+         </div>
+      </div>
+   </div>
+   <div class="section">
+      <div class="container">
+         <div class="row">
+            <button id="btn1" class="col-6 btn btn-primary" onclick="connectToBle()">블루투스 연결하기</button>
+            <button class="col-6 btn btn-primary" onclick="show_all_auctions()">배송할 목록들 보기</button> 
+         </div>
+         <div id="All_auctions" class="col-lg-6 mb-5 mb-lg-0 justify-content-center" style="margin-top: 20px; margin-left: auto; margin-right: auto;"></div>
+      </div>
+   </div> <!-- /.untree_co-section -->
+
+   <div class="site-footer">
+      <div class="container">
+
+         <div class="row">
+         </div> 
+            <div class="col-12 text-center">
+            <p>Copyright &copy;<script>document.write(new Date().getFullYear());</script>. All Rights Reserved. &mdash; Designed with love by 우유와고기조</a> 
+            </p>
+
+          </div>
+        </div>
+      </div>
+    </div> 
+
+    <!-- Preloader -->
+    <div id="overlayer"></div>
+    <div class="loader">
+       <div class="spinner-border" role="status">
+          <span class="visually-hidden">Loading...</span>
+       </div>
+    </div>
+    <script language="javascript" type="text/javascript" src="../libraries/p5.min.js"></script>
+    <script language="javascript" type="text/javascript" src="../libraries/p5.ble.js"></script>
+    <script language="javascript" type="text/javascript" src="../js/bluetooth.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ipfs/dist/index.min.js"></script>
+   
+    <script src="../auction_abi.js"></script>
+    <script src="../Item_abi.js"></script>
+    <script src="../Supply_abi.js"></script>
+    <script src="../owner_abi.js"></script>
+   <script src="../SupplyManaging_abi.js"></script>
+  
+
+    <script src="../js/index.js"></script>
+
+    <script src="../js/bootstrap.bundle.min.js"></script>
+    <script src="../js/tiny-slider.js"></script>
+    <script src="../js/aos.js"></script>
+    <script src="../js/navbar.js"></script>
+    <script src="../js/counter.js"></script>
+    <script src="../js/custom.js"></script>
+
+    <script>
+        let blueTooth;
+       let blueToothCharacteristic;//this is a blu
+
+      var table_flag = false;
+
+        window.addEventListener("load", function() {
+            alert("온습도 측정 하기 전, 블루투스 연결을 먼저 해주세요.")
+
+            blueTooth = new p5ble();
+        });
+
+      function removeAllchild(div) {
+         while (div.hasChildNodes()) {
+            div.removeChild(div.firstChild);
+         }
+      }
+
+      async function show_all_auctions(){
+         var all_auction = document.getElementById("All_auctions");
+
+         if(table_flag){
+            removeAllchild(all_auction);
+         }
+
+         //0921 sm 호출해서 모든 auction 정보들 불러오기
+
+         // var item = new Array();
+         // var temp = new Array();
+         // var price = new Array();
+         
+         // console.log(nakchal_auc);
+         // for(var i = 0; i<nakchal_auc.length; i++){
+         
+         //    //내가 낙찰한 item이 있을때만 가격 저장
+         //    // itemId 대신 낙찰받은 auctionId로 탐색
+         //    price[i] =await Auction_sol.methods.getWinningPrice(nakchal_auc[i]).call();
+         //    var nakchal_itemId = await Auction_sol.methods.getItemByAuction(nakchal_auc[i]).call();
+         //    nakchal_item[i] = await Item_sol.methods.getItemById(nakchal_itemId).call();         
+         // }
+         // //console.log(item);
+
+
+         console.log("관리자에게 모든 auction_item들 보여줄 것");
+         let table = document.createElement('table');
+         let thead = document.createElement('thead');
+         let tbody = document.createElement('tbody');
+
+         table.appendChild(thead);
+         table.appendChild(tbody);
+
+         document.getElementById("All_auctions").appendChild(table);
+
+         let row_1 = document.createElement('tr');
+         let heading_1 = document.createElement('th');
+         heading_1.innerHTML = "No.";
+         let heading_2 = document.createElement('th');
+         heading_2.innerHTML = "생선품명";
+         let heading_3 = document.createElement('th');
+         heading_3.innerHTML = "무게(kg)";
+         let heading_4 = document.createElement('th');
+         heading_4.innerHTML = "개수";
+         let heading_5 = document.createElement('th');
+         heading_5.innerHTML = "온습도 측정 시작 버튼";
+
+         row_1.appendChild(heading_1);
+         row_1.appendChild(heading_2);
+         row_1.appendChild(heading_3);
+         row_1.appendChild(heading_4);
+         row_1.appendChild(heading_5);
+         thead.appendChild(row_1);
+
+         //var cnt =nakchal_item.length;
+
+         for(var i = 0; i < 10; i++){
+            let row_2 = document.createElement('tr');
+            let row_2_data_1 = document.createElement('td');
+            row_2_data_1.innerHTML = i+1;
+
+            //픔명
+            let row_2_data_2 = document.createElement('td');
+            //row_2_data_2.innerHTML = String(nakchal_item[i][0]);
+            row_2_data_2.innerHTML = "품명";
+            
+            //무게
+            let row_2_data_3 = document.createElement('td');
+            //row_2_data_3.innerHTML = nakchal_item[i][1];
+            row_2_data_3.innerHTML = "무게";
+
+            //개수
+            let row_2_data_4 = document.createElement('td');
+            //row_2_data_4.innerHTML = nakchal_item[i][2] ;
+            row_2_data_4.innerHTML = "개수";
+
+            //배송정보 버튼
+            let row_2_data_7 = document.createElement('td');
+            row_2_data_7.innerHTML = '<button id="btn1" class="btn btn-primary" style="margin-left: 40px; padding:10px;" onclick="MeasureData()">시작</button>';
+
+            row_2.appendChild(row_2_data_1);
+            row_2.appendChild(row_2_data_2);
+            row_2.appendChild(row_2_data_3);
+            row_2.appendChild(row_2_data_4);
+            row_2.appendChild(row_2_data_7);
+            tbody.appendChild(row_2);
+         }
+         table_flag = true;
+
+      }
+
+              
+            
+          
+        
+      
+    
+
+    </script>
+  </body>
+  </html>

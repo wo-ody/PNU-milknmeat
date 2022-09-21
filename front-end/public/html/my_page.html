@@ -225,11 +225,11 @@
             </div>
             <div class="close-area">X</div>
             <div id="modal_content" class="content">
-				<a id="modal_table"><h5>경로</h5></a>
-				<hr>
-				<h5>온습도</h5>
-                <button id = "btn1">연결</button>
-                <button id = "btn2" >측정</button>
+            <h5>경로</h5>
+            <div id="modal_table"></div>
+            <hr>
+            <h5>온습도</h5>
+                <div id="modal_temp_humi"></div>
             </div>
         </div>
     </div>
@@ -876,125 +876,184 @@
 
 	var modal_flag = false;
 
-	function show_delivery_info(){
-		modal_flag = true;
-		// 경로 table 생성
-		Modal_show_route(); 
+function show_delivery_info(){
+   modal_flag = true;
+   // 경로 table 생성
+   Modal_show_route(); 
+   // 온습도 table 생성
+   Modal_show_tempnhumi();
 
-		var maskHeight = $(document).height();
-        var maskWidth = window.document.body.clientWidth;
-		$('#modal').css({'width' : maskWidth, 'height': maskHeight});
-		const modal = document.getElementById("modal");
-    	modal.style.display = "flex";
-	}
-	
+   var maskHeight = $(document).height();
+	 var maskWidth = window.document.body.clientWidth;
+   $('#modal').css({'width' : maskWidth, 'height': maskHeight});
+   const modal = document.getElementById("modal");
+	modal.style.display = "flex";
+}
 
-	const closeBtn = modal.querySelector(".close-area")
-	closeBtn.addEventListener("click", e => {
-    modal.style.display = "none"
-	})
-	let blueTooth;
-	let blueToothCharacteristic;//this is a blu
+const closeBtn = modal.querySelector(".close-area")
+closeBtn.addEventListener("click", e => {
+ modal.style.display = "none"
+})
 
-	const btn1 = document.getElementById('btn1');
-	const btn2 = document.getElementById('btn2');
+async function Modal_show_route(){
+   var path = new Array();
+   for(var i =0; i<nakchal_item.length; i++){
+	  //내가 낙찰한 item이 있을때만 경로 저장
+	  path[i] = await SupplyManaging_sol.methods.getPathMaxByItemId(nakchal_item[i].itemId).call();
+	  //console.log(path[i]);
+   }
+   console.log(path[0]);
 
-	btn1.addEventListener('click',function(){
-		connectToBle();
-	})
-
-	btn2.addEventListener('click',function(){
-		MeasureData();
-	})
-
-	async function Modal_show_route(){
-		var path = new Array();
-		for(var i =0; i<nakchal_item.length; i++){
-			//내가 낙찰한 item이 있을때만 경로 저장
-			path[i] = await SupplyManaging_sol.methods.getPathMaxByItemId(nakchal_item[i].itemId).call();
-			//console.log(path[i]);
-		}
-		console.log(path[0]);
-
-		if(modal_flag){
-			let mt = document.getElementById("modal_table");
-			while (mt.hasChildNodes()) {  
-				mt.removeChild(mt.firstChild);
-			}
-			modal_flag = false;
-		}
+   if(modal_flag){
+	  let mt = document.getElementById("modal_table");
+	  while (mt.hasChildNodes()) {  
+		 mt.removeChild(mt.firstChild);
+	  }
+	  modal_flag = false;
+   }
 
 
-		//console.log("사용자의 등록한 item들 보여줄 것");
-		let table = document.createElement('table');
-		let thead = document.createElement('thead');
-		let tbody = document.createElement('tbody');
+   //console.log("사용자의 등록한 item들 보여줄 것");
+   let table = document.createElement('table');
+   let thead = document.createElement('thead');
+   let tbody = document.createElement('tbody');
 
-		table.appendChild(thead);
-		table.appendChild(tbody);
+   table.appendChild(thead);
+   table.appendChild(tbody);
 
-		document.getElementById("modal_table").appendChild(table);
+   document.getElementById("modal_table").appendChild(table);
 
-		let row_2 = document.createElement('tr');
+   let row_2 = document.createElement('tr');
 
-		let heading_3 = document.createElement('th');
-		heading_3.setAttribute('colspan','2')
-		heading_3.innerHTML = "경로";
-		
+   let heading_3 = document.createElement('th');
+   heading_3.setAttribute('colspan','2')
+   heading_3.innerHTML = "경로(시작~도착)";
+   
 
-		let heading_5 = document.createElement('th');
-		heading_5.innerHTML = "from";
-		let heading_6 = document.createElement('th');
-		heading_6.innerHTML = "to";
+   let heading_5 = document.createElement('th');
+   heading_5.innerHTML = "from";
+   let heading_6 = document.createElement('th');
+   heading_6.innerHTML = "to";
 
-		row_2.appendChild(heading_5);
-		row_2.appendChild(heading_6);
+   row_2.appendChild(heading_5);
+   row_2.appendChild(heading_6);
 
-		thead.appendChild(row_2)
+   thead.appendChild(row_2)
 
-		var cnt = nakchal_item.length;
+   var cnt = nakchal_item.length;
 
 //for 문으로 sm 으로부터 받은 값 파싱해서 보여주기
-		for(var i = 0; i < cnt; i++){
-			let row_3 = document.createElement('tr');
-			let row_3_data_1 = document.createElement('td');
-			row_3_data_1.innerHTML = i+1;
-			console.log(nakchal_item[i]);
-	
-			//경로 td
-			let row_3_data_3 = document.createElement('td');
-			row_3_data_3.setAttribute('colspan','2')
+   for(var i = 0; i < cnt; i++){
+	  let row_3 = document.createElement('tr');
+	  let row_3_data_1 = document.createElement('td');
+	  row_3_data_1.innerHTML = i+1;
+	  console.log(nakchal_item[i]);
 
-			let inner_table = document.createElement('table');
-			let inner_thead = document.createElement('thead');
-			let inner_tbody = document.createElement('tbody');
+	  //경로 td
+	  let row_3_data_3 = document.createElement('td');
+	  row_3_data_3.setAttribute('colspan','2')
 
-			inner_table.appendChild(inner_thead);
-			inner_table.appendChild(inner_tbody);
+	  let inner_table = document.createElement('table');
+	  let inner_thead = document.createElement('thead');
+	  let inner_tbody = document.createElement('tbody');
 
-			for(var j=0; j < path[i].length; j=j+2){
-				let row_4 = document.createElement('tr');
-				
-				let row_4_data_1 = document.createElement('td');
-				row_4_data_1.innerHTML = path[i][j];
-				console.log("Modal data ",path[i][j]);
-				
-				let row_4_data_2 = document.createElement('td');
-				row_4_data_2.innerHTML = path[i][j+1];
-				console.log("Modal data ",path[i][j+1]);
-				
-				row_4.appendChild(row_4_data_1);
-				row_4.appendChild(row_4_data_2);
-				inner_tbody.append(row_4);
-				
-			}
+	  inner_table.appendChild(inner_thead);
+	  inner_table.appendChild(inner_tbody);
 
-			row_3_data_3.appendChild(inner_table);
-			row_3.appendChild(row_3_data_3);
-			tbody.appendChild(row_3);
-		}	
-	}
-	
+	  for(var j=0; j < path[i].length; j=j+2){
+		 let row_4 = document.createElement('tr');
+		 
+		 let row_4_data_1 = document.createElement('td');
+		 row_4_data_1.innerHTML = path[i][j];
+		 console.log("Modal data ",path[i][j]);
+		 
+		 let row_4_data_2 = document.createElement('td');
+		 row_4_data_2.innerHTML = path[i][j+1];
+		 console.log("Modal data ",path[i][j+1]);
+		 
+		 row_4.appendChild(row_4_data_1);
+		 row_4.appendChild(row_4_data_2);
+		 inner_tbody.append(row_4);
+		 
+	  }
+
+	  row_3_data_3.appendChild(inner_table);
+	  row_3.appendChild(row_3_data_3);
+	  tbody.appendChild(row_3);
+   }   
+}
+
+async function Modal_show_tempnhumi(){
+   // var path = new Array();
+   // for(var i =0; i<nakchal_item.length; i++){
+   //    //내가 낙찰한 item이 있을때만 경로 저장
+   //    path[i] = await SupplyManaging_sol.methods.getPathMaxByItemId(nakchal_item[i].itemId).call();
+   //    //console.log(path[i]);
+   // }
+   // console.log(path[0]);
+
+   if(modal_flag){
+	  let mt = document.getElementById("modal_temp_humi");
+	  while (mt.hasChildNodes()) {  
+		 mt.removeChild(mt.firstChild);
+	  }
+	  modal_flag = false;
+   }
+
+
+   //console.log("사용자의 등록한 item들 보여줄 것");
+   let table = document.createElement('table');
+   let thead = document.createElement('thead');
+   let tbody = document.createElement('tbody');
+
+   table.appendChild(thead);
+   table.appendChild(tbody);
+
+   document.getElementById("modal_temp_humi").appendChild(table);
+
+   let row_1 = document.createElement('tr');
+
+   let heading_4 = document.createElement('th');
+   heading_4.innerHTML = "측정시간";
+   let heading_5 = document.createElement('th');
+   heading_5.innerHTML = "온도";
+   let heading_6 = document.createElement('th');
+   heading_6.innerHTML = "습도";
+
+   row_1.appendChild(heading_4);
+   row_1.appendChild(heading_5);
+   row_1.appendChild(heading_6);
+
+   thead.appendChild(row_1)
+
+   //var cnt = nakchal_item.length;
+
+   for(var i = 0; i < 5; i++){
+	  let row_2 = document.createElement('tr');
+	  let row_2_data_1 = document.createElement('td');
+	  row_2_data_1.innerHTML = i+1;
+
+	  //No
+	  let row_2_data_2 = document.createElement('td');
+	  //row_2_data_2.innerHTML = String(nakchal_item[i][0]);
+	  row_2_data_2.innerHTML = "00:00:00";
+	  
+	  //온도
+	  let row_2_data_3 = document.createElement('td');
+	  //row_2_data_3.innerHTML = nakchal_item[i][1];
+	  row_2_data_3.innerHTML = "45";
+
+	  //습도
+	  let row_2_data_4 = document.createElement('td');
+	  //row_2_data_4.innerHTML = nakchal_item[i][2] ;
+	  row_2_data_4.innerHTML = "25도";
+
+	  row_2.appendChild(row_2_data_2);
+	  row_2.appendChild(row_2_data_3);
+	  row_2.appendChild(row_2_data_4);
+	  tbody.appendChild(row_2);
+   }   
+}
 
 	
     </script>
