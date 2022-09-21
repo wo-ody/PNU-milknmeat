@@ -14,12 +14,12 @@
     border: 1px solid rgba(255, 255, 255, 0.18);
 }
 #modal .modal-window {
-    background: rgba(131, 230, 210, 0.7);
+    background: rgba(60, 63, 62, 0.7);
     align-items: center;
     border-radius: 10px;
     border: 1px solid rgba( 255, 255, 255, 0.18 );
     width: 500px;
-    height: 400px;
+    height: 600px;
     position: relative;
     
     padding: 10px;
@@ -27,7 +27,7 @@
 #modal .title {
     padding-left: 10px;
     display: inline;
-    text-shadow: 1px 1px 2px gray;
+    
     color: white;
     
 }
@@ -39,7 +39,7 @@
     float: right;
     padding-right: 10px;
     cursor: pointer;
-    text-shadow: 1px 1px 2px gray;
+    
     color: white;
 }
 
