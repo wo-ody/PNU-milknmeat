@@ -263,6 +263,7 @@
 		var userAccount;
 		let nakchal_auc  = new Array();
 		let nakchal_item = new Array();
+		let item = new Array();
 		
 		var flag = false; //버튼 여러번 눌렀을 때 테이블 중복 생성 방지
 
@@ -277,18 +278,29 @@
 			//내가 생산한 아이템이 아닌 낙찰한 아이템저장.
 			var temp = new Array();
 			nakchal_auc = await OwnerData_sol.methods.getWinningBids(userAccount[0]).call();
-			
+			console.log(nakchal_auc,'winningBids')
 
+			for(var i =0; i<all_itemId.length; i++){
+				item[i] = await Item_sol.methods.getItemById(all_itemId[i]).call();
+
+				//내가 생성한 옥션아이템의 아이디
+				//1 , 0 순서로 옥션등록, 그럼 옥션아이디는 순서대로 1,0이어야함. but 0,1로 저장되서......
+				auction_itemId = await Auction_sol.methods.getAuctionsOfOwner(userAccount[0]).call();
+			}
+
+			var j = -1
 			 for(var i =0; i<all_itemId.length; i++){
 				
-				temp[i] = await Item_sol.methods.getItemById(all_itemId[i]).call();
+				temp[i] = await Item_sol.methods.getItemById(item[i].itemId).call();
 				//var userAccount = await web3.eth.getAccounts();
 				console.log(temp[i]);
 				console.log(temp[i].producer)
 				console.log(userAccount[0])
 				
 				if(temp[i].producer!=userAccount[0]){
-					nakchal_item[i]=temp[i]
+					j++
+					nakchal_item[j]=temp[i]
+					
 				}
 			
 			}
@@ -593,24 +605,23 @@
 			
 			
 			console.log(nakchal_auc);
-			 for(var i = 0; i<nakchal_auc.length; i++){
+			for(var i = 0; i<nakchal_auc.length; i++){
 			
 			// 	//내가 낙찰한 item이 있을때만 가격 저장
 			// 	// itemId 대신 낙찰받은 auctionId로 탐색
 			// 	console.log(nakchal_auc[i],"낙찰 옥")
-			 	price[i] =await Auction_sol.methods.getWinningPrice(nakchal_auc[i]).call();
-			// 	var nakchal_itemId = await Auction_sol.methods.getItemByAuction(nakchal_auc[i]).call();
-			// 	nakchal_item[i] = await Item_sol.methods.getItemById(nakchal_itemId).call();			
-			 }
+			 	 price[i] =await Auction_sol.methods.getWinningPrice(nakchal_auc[i]).call();
+				// var nakchal_itemId = await Auction_sol.methods.getItemByAuction(nakchal_auc[i]).call();
+				// nakchal_item[i] = await Item_sol.methods.getItemById(nakchal_itemId).call();			
+			  }
+			  console.log(price,"r=가격")
 		// 	for(var i = 0; i<all_itemId.length; i++){
 			
-		// 	//내가 낙찰한 item이 있을때만 가격 저장
-		// 	if(nakchal_item[i]!=undefined)
-		// 		price[i] =await Auction_sol.methods.getWinnigBid(nakchal_item[i].itemId).call();
-		// }
+			//내가 낙찰한 item이 있을때만 가격 저장
+		
 			//console.log(item);
 
-
+			console.log(nakchal_item,"낙찰아이템")
 			console.log("사용자의 등록한 item들 보여줄 것");
 			let table = document.createElement('table');
 			let thead = document.createElement('thead');
@@ -654,9 +665,29 @@
 
 			var cnt =nakchal_item.length;
 			//var cnt = all_itemId.length; // 사용자가 등록한 item 개수
-
+			//console.log(nakchal_item[0].itemId,"아이디")
 			//for 문으로 sm 으로부터 받은 값 파싱해서 보여주기
+			nakchal_item2 = new Array();
+			var j = 0
+		
+
 			for(var i = 0; i < cnt; i++){
+				console.log(nakchal_item[i])
+				// if(nakchal_item[i]==undefined)
+				// 	continue;
+				// else{
+					//console.log('ind',i)
+					//var nakchal_itemId = await Auction_sol.methods.getItemByAuction(nakchal_item[i].itemId).call();
+					//var nakchal_item2= await Item_sol.methods.getItemById(nakchal_itemId[i]).call();
+					//console.log(nakchal_itemId[0],'아이디..........')
+					//console.log(nakchal_item[0].itemId,'............')
+					console.log(nakchal_item[i].itemId,"아이디")
+					//price[i] =await Auction_sol.methods.getWinningPrice(nakchal_item[i].itemId).call();
+				
+					console.log(price,"가격")
+				
+				
+				
 				let row_2 = document.createElement('tr');
 				let row_2_data_1 = document.createElement('td');
 				row_2_data_1.innerHTML = i+1;
@@ -761,18 +792,11 @@
 			 	//path[i] = await SupplyManaging_sol.methods.getPathMaxByItemId(nakchal_item[i].itemId).call();
 			// 	//console.log(nakchal_item[0].itemId,"낙찰");
 			// }
-			var price = new Array();
-			var path = new Array();
-			for(var i = 0; i<nakchal_auc.length; i++){
 			
-			// 	//내가 낙찰한 item이 있을때만 가격 저장
-			// 	// itemId 대신 낙찰받은 auctionId로 탐색
-			// 	console.log(nakchal_auc[i],"낙찰 옥")
-			 	price[i] =await Auction_sol.methods.getWinningPrice(nakchal_auc[i]).call();
-			// 	var nakchal_itemId = await Auction_sol.methods.getItemByAuction(nakchal_auc[i]).call();
-			// 	nakchal_item[i] = await Item_sol.methods.getItemById(nakchal_itemId).call();			
-			 }
+			var path = new Array();
+			
 			 for(var i =0; i<nakchal_item.length; i++){
+				// if(nakchal_item[i]!=undefined)
 				 path[i] = await SupplyManaging_sol.methods.getPathMaxByItemId(nakchal_item[i].itemId).call();
 			 }
 			console.log(path[0]);
@@ -837,6 +861,9 @@
 			
 			//for 문으로 sm 으로부터 받은 값 파싱해서 보여주기
 			for(var i = 0; i < cnt; i++){
+				if(nakchal_item[i]==undefined)
+					continue;
+				
 				let row_3 = document.createElement('tr');
 				let row_3_data_1 = document.createElement('td');
 				row_3_data_1.innerHTML = i+1;
