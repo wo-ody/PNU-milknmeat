@@ -277,7 +277,8 @@
 			//내가 생산한 아이템이 아닌 낙찰한 아이템저장.
 			var temp = new Array();
 			nakchal_auc = await OwnerData_sol.methods.getWinningBids(userAccount[0]).call();
-/*
+			
+
 			 for(var i =0; i<all_itemId.length; i++){
 				
 				temp[i] = await Item_sol.methods.getItemById(all_itemId[i]).call();
@@ -291,7 +292,8 @@
 				}
 			
 			}
-*/
+			console.log(nakchal_item,"Dddddddddddddd")
+
 		});
 
 
@@ -591,14 +593,21 @@
 			
 			
 			console.log(nakchal_auc);
-			for(var i = 0; i<nakchal_auc.length; i++){
+			 for(var i = 0; i<nakchal_auc.length; i++){
 			
-				//내가 낙찰한 item이 있을때만 가격 저장
-				// itemId 대신 낙찰받은 auctionId로 탐색
-				price[i] =await Auction_sol.methods.getWinningPrice(nakchal_auc[i]).call();
-				var nakchal_itemId = await Auction_sol.methods.getItemByAuction(nakchal_auc[i]).call();
-				nakchal_item[i] = await Item_sol.methods.getItemById(nakchal_itemId).call();			
-			}
+			// 	//내가 낙찰한 item이 있을때만 가격 저장
+			// 	// itemId 대신 낙찰받은 auctionId로 탐색
+			// 	console.log(nakchal_auc[i],"낙찰 옥")
+			 	price[i] =await Auction_sol.methods.getWinningPrice(nakchal_auc[i]).call();
+			// 	var nakchal_itemId = await Auction_sol.methods.getItemByAuction(nakchal_auc[i]).call();
+			// 	nakchal_item[i] = await Item_sol.methods.getItemById(nakchal_itemId).call();			
+			 }
+		// 	for(var i = 0; i<all_itemId.length; i++){
+			
+		// 	//내가 낙찰한 item이 있을때만 가격 저장
+		// 	if(nakchal_item[i]!=undefined)
+		// 		price[i] =await Auction_sol.methods.getWinnigBid(nakchal_item[i].itemId).call();
+		// }
 			//console.log(item);
 
 
@@ -689,7 +698,11 @@
 
 			}
 		function create_new(id){
+			console.log(id,"Dddddd")
+			//id = parseInt(id)
+			//id+=1
 			location.href="qr_page.html?a="+id
+			
 		}
 		// var qrcode = new QRCode(document.getElementById("qrcode"),{
         //     width:100,
@@ -738,14 +751,30 @@
 
 			
 			
+			
+			// for(var i =0; i<nakchal_auc.length; i++){
+			// 	//내가 낙찰한 item이 있을때만 경로 저장
+			// 	// var nakchal_itemId = await Auction_sol.methods.getItemByAuction(nakchal_auc[i]).call();
+			// 	// //console.log(nakchal_auc,'eeeeeeeeeeeeeeeeeeeee')
+			// 	// nakchal_item[i] = await Item_sol.methods.getItemById(nakchal_itemId).call();	
+			// 	// console.log(nakchal_item,"ccccc")
+			 	//path[i] = await SupplyManaging_sol.methods.getPathMaxByItemId(nakchal_item[i].itemId).call();
+			// 	//console.log(nakchal_item[0].itemId,"낙찰");
+			// }
+			var price = new Array();
 			var path = new Array();
-			for(var i =0; i<nakchal_auc.length; i++){
-				//내가 낙찰한 item이 있을때만 경로 저장
-				var nakchal_itemId = await Auction_sol.methods.getItemByAuction(nakchal_auc[i]).call();
-				nakchal_item[i] = await Item_sol.methods.getItemById(nakchal_itemId).call();	
-				path[i] = await SupplyManaging_sol.methods.getPathMaxByItemId(nakchal_item[i].itemId).call();
-				//console.log(path[i]);
-			}
+			for(var i = 0; i<nakchal_auc.length; i++){
+			
+			// 	//내가 낙찰한 item이 있을때만 가격 저장
+			// 	// itemId 대신 낙찰받은 auctionId로 탐색
+			// 	console.log(nakchal_auc[i],"낙찰 옥")
+			 	price[i] =await Auction_sol.methods.getWinningPrice(nakchal_auc[i]).call();
+			// 	var nakchal_itemId = await Auction_sol.methods.getItemByAuction(nakchal_auc[i]).call();
+			// 	nakchal_item[i] = await Item_sol.methods.getItemById(nakchal_itemId).call();			
+			 }
+			 for(var i =0; i<nakchal_item.length; i++){
+				 path[i] = await SupplyManaging_sol.methods.getPathMaxByItemId(nakchal_item[i].itemId).call();
+			 }
 			console.log(path[0]);
 		
 			
@@ -863,9 +892,12 @@
 				all_itemId = await OwnerData_sol.methods.getItemOwnedBy(userAccount[0]).call();
 
 				row_3.innerHTML += 
-				'<td><button id='+idx+' class="btn btn-primary" onclick="create_new(' + "this.id" + ' )">QR코드</button></td></tr>';
+				'<td><button id='+nakchal_item[i].itemId+' class="btn btn-primary" onclick="create_new(' + "this.id" + ' )">QR코드</button></td></tr>';
 				//'<td><button id='+idx+' class="btn btn-primary" onclick="create_new(' + "this.id" + ' )">QR코드</button></td></tr>';
+				console.log(idx)
 				tbody.appendChild(row_3);
+				item = await Item_sol.methods.getItemById(idx).call();
+				console.log(item,"ddd")
 				
 			
 			}
