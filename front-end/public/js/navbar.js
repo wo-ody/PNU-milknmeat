@@ -34,9 +34,9 @@
 				arrowCollapse.setAttribute('data-bs-toggle', 'collapse');
 				arrowCollapse.setAttribute('data-bs-target', '#collapseItem' + counter);
 
-				var dropdown = hasChild.querySelector('.dropdown');
-				dropdown.setAttribute('class', 'collapse');
-				dropdown.setAttribute('id', 'collapseItem' + counter);
+				// var dropdown = hasChild.querySelector('.dropdown');
+				// dropdown.setAttribute('class', 'collapse');
+				// dropdown.setAttribute('id', 'collapseItem' + counter);
 
 				counter++;
 			});
