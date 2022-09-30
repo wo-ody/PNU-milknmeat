@@ -72,23 +72,9 @@
 						<li><a href="../index.html">홈</a></li>
 						<li class="has-children">
 							<a href="properties.html">경매 물품</a>
-							<ul class="dropdown">
-								<li><a href="#">Buy Property</a></li>
-								<li><a href="#">Sell Property</a></li>
-								<li class="has-children">
-									<a href="#">Dropdown</a>
-									<ul class="dropdown">
-										<li><a href="#">Sub Menu One</a></li>
-										<li><a href="#">Sub Menu Two</a></li>
-										<li><a href="#">Sub Menu Three</a></li>
-									</ul>
-								</li>
-							</ul>
 						</li>
                         <li><a href="my_page.html">My Page</a></li>
-						<!-- <li><a href="services.html">Services</a></li>
-						<li><a href="about.html">About</a></li>
-						<li class="active"><a href="contact.html">Contact Us</a></li> -->
+						<li id="for_manager" onclick="check_manager()"><a>배송 정보 관리</a></li>
 					</ul>
 				</div>
 			</div>
@@ -185,6 +171,21 @@
     <script src="../js/counter.js"></script>
     <script src="../js/custom.js"></script>
     <script>
+        async function check_manager(){
+			var userAccount = await web3.eth.getAccounts(); 
+			console.log(userAccount);
+
+            console.log(userAccount[0]);
+			let check_manager = await Item_sol.methods.getIsManager(userAccount[0]).call();
+
+			if(check_manager==false){
+				alert("접근 권한이 없습니다.");
+			}
+			else{
+				location.href="./manage_delivery.html";
+			}
+		}
+
         var fileNo = 0;
         var filesArr = new Array();
         function LoadingWithMask() {
@@ -327,7 +328,7 @@
             //경매 물품에 상품 추가하기
             //블록체인에 상품 등록하기z
             var userAccount = await web3.eth.getAccounts();
-            console.log(userAccount[0]);
+            console.log(userAccount[0],"ddd");
         
 
            // let pot = await sol.methods.getBidsCount(2).call();
