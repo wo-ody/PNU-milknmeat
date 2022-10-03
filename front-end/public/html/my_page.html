@@ -278,15 +278,18 @@
 		 
 		 console.log(all_itemId.length,"length")
 		 console.log(item)
-          for(var i =0; i<item.length; i++){
+		 console.log(auction_itemId)
+
+		 // 배송추적 걸러주는 부분. 
+		 temp = await Auction_sol.methods.getAllOfAuctions().call();
+          for(var i =0; i<temp.length; i++){
             
-            temp[i] = await Item_sol.methods.getItemById(item[i].itemId).call();
-            //var userAccount = await web3.eth.getAccounts();
-            //console.log(temp[i]);
-            //console.log(temp[i].producer)
-            //console.log(userAccount[0])
-            
-            if(temp[i].producer!=userAccount[0]){
+			
+			console.log(temp[i])
+            console.log(temp[i].buyer)
+			console.log(temp[i].seller)
+			//await Auction_sol.methods.getAuctionById(a_id).call();
+            if(temp[i].buyer==userAccount[0]){
                j++
                nakchal_item[j]=temp[i]
                

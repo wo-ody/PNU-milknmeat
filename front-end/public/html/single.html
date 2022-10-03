@@ -258,8 +258,9 @@
 
 		document.getElementById("bid_start_price").innerHTML += (info_auction.startPrice + ' Wei');
 
+		console.log(info_auction.seller,"생산자")
 		var userAccount = await web3.eth.getAccounts();
-		if(info_auction.owner==userAccount[0]){
+		if(info_auction.seller==userAccount[0]){
 			console.log("owner")
 			document.getElementById('bid_btn').style.display = 'none';
 				document.getElementById('btn').innerHTML+=
